@@ -1,10 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connection.Core", "src\Empowered.Dataverse.Connection.Core\Empowered.Dataverse.Connection.Core.csproj", "{D43F98AE-C97A-4460-860E-C21A38579F1B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connection.Store", "src\Empowered.Dataverse.Connection.Store\Empowered.Dataverse.Connection.Store.csproj", "{D43F98AE-C97A-4460-860E-C21A38579F1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connection.Tool", "src\Empowered.Dataverse.Connection.Tool\Empowered.Dataverse.Connection.Tool.csproj", "{F4D9FC1A-83D8-4D43-A123-D268CAA3083A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connection.Extensions", "src\Empowered.Dataverse.Connection.Extensions\Empowered.Dataverse.Connection.Extensions.csproj", "{2AEE8C3A-9D77-4F21-BA40-AF85EA8748D1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{5FD0850C-5E17-4313-8AC7-058217472192}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{890F8F00-CDD2-4C06-9401-DD7C79CA6F4C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unit", "unit", "{FF96E789-3991-4590-928B-F736AB29D513}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connection.Store.Tests", "test\unit\Empowered.Dataverse.Connection.Store.Tests\Empowered.Dataverse.Connection.Store.Tests.csproj", "{D978FF74-555B-4A6B-900B-967AF5216473}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,9 +26,15 @@ Global
 		{F4D9FC1A-83D8-4D43-A123-D268CAA3083A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4D9FC1A-83D8-4D43-A123-D268CAA3083A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4D9FC1A-83D8-4D43-A123-D268CAA3083A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2AEE8C3A-9D77-4F21-BA40-AF85EA8748D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2AEE8C3A-9D77-4F21-BA40-AF85EA8748D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2AEE8C3A-9D77-4F21-BA40-AF85EA8748D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AEE8C3A-9D77-4F21-BA40-AF85EA8748D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D978FF74-555B-4A6B-900B-967AF5216473}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D978FF74-555B-4A6B-900B-967AF5216473}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D978FF74-555B-4A6B-900B-967AF5216473}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D978FF74-555B-4A6B-900B-967AF5216473}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D43F98AE-C97A-4460-860E-C21A38579F1B} = {5FD0850C-5E17-4313-8AC7-058217472192}
+		{F4D9FC1A-83D8-4D43-A123-D268CAA3083A} = {5FD0850C-5E17-4313-8AC7-058217472192}
+		{FF96E789-3991-4590-928B-F736AB29D513} = {890F8F00-CDD2-4C06-9401-DD7C79CA6F4C}
+		{D978FF74-555B-4A6B-900B-967AF5216473} = {FF96E789-3991-4590-928B-F736AB29D513}
 	EndGlobalSection
 EndGlobal
