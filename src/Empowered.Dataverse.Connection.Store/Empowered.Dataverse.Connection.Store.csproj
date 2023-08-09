@@ -1,19 +1,54 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.DataProtection" Version="7.0.8" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
       <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client" Version="1.1.9" />
       <PackageReference Include="Microsoft.PowerPlatform.Dataverse.Client.Dynamics" Version="1.1.9" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="obj\Debug\" />
+      <Compile Remove="obj\**" />
+      <Compile Include="obj\Debug\net7.0\.NETCoreApp,Version=v7.0.AssemblyAttributes.cs" />
+      <Compile Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.AssemblyInfo.cs" />
+      <Compile Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.GlobalUsings.g.cs" />
+      <Compile Remove="obj\Release\**" />
+      <Compile Remove="obj\Debug\net7.0\**" />
+      <Compile Remove="obj\Debug\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="obj\**" />
+      <EmbeddedResource Remove="obj\Release\**" />
+      <EmbeddedResource Remove="obj\Debug\net7.0\**" />
+      <EmbeddedResource Remove="obj\Debug\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="obj\**" />
+      <None Remove="obj\Release\**" />
+      <None Remove="obj\Debug\net7.0\**" />
+      <None Remove="obj\Debug\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.AssemblyInfoInputs.cache" />
+      <Content Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.assets.cache" />
+      <Content Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.csproj.AssemblyReference.cache" />
+      <Content Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.csproj.CoreCompileInputs.cache" />
+      <Content Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.csproj.FileListAbsolute.txt" />
+      <Content Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.dll" />
+      <Content Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.GeneratedMSBuildEditorConfig.editorconfig" />
+      <Content Include="obj\Debug\net7.0\Empowered.Dataverse.Connection.Store.pdb" />
+      <Content Include="obj\Debug\net7.0\refint\Empowered.Dataverse.Connection.Store.dll" />
+      <Content Include="obj\Debug\net7.0\ref\Empowered.Dataverse.Connection.Store.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="obj\" />
     </ItemGroup>
 
 </Project>

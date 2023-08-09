@@ -5,6 +5,7 @@ using CommandDotNet.Execution;
 using CommandDotNet.IoC.MicrosoftDependencyInjection;
 using CommandDotNet.NameCasing;
 using CommandDotNet.Spectre;
+using Empowered.Dataverse.Connection.Store.Extensions;
 using Empowered.Dataverse.Connection.Tool.Commands;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,8 @@ public static class Program
         var appRunner = new AppRunner<ConnectionCommand>();
         var commandClassTypes = appRunner.GetCommandClassTypes();
         var serviceCollection = new ServiceCollection()
-            .AddSingleton<IAnsiConsole>(_ => AnsiConsole.Console);
+            .AddSingleton<IAnsiConsole>(_ => AnsiConsole.Console)
+            .AddConnectionStore();
 
         foreach (var commandClassType in commandClassTypes)
         {

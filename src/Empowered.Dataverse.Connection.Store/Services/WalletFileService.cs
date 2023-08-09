@@ -13,29 +13,36 @@ internal class WalletFileService : IWalletFileService
     private readonly ILogger<WalletFileService> _logger;
     private readonly IDataProtector _dataProtector;
 
-    public WalletFileService(IDataProtectionProvider provider, IEnvironmentService environmentService, ILogger<WalletFileService> logger)
+    public WalletFileService(
+        IDataProtectionProvider provider,
+        IEnvironmentService environmentService,
+        ILogger<WalletFileService> logger
+    )
     {
         _environmentService = environmentService;
         _logger = logger;
         _dataProtector = provider.CreateProtector(Application.ConnectionFile);
 
-
         var connectionFilePath = environmentService.GetConnectionFilePath();
+        _logger.LogTrace("Getting connection file path {Path}", connectionFilePath);
 
         if (connectionFilePath.Exists)
         {
+            _logger.LogTrace("Connection file path {Path} already exists -> try reading wallet file {FileName}", connectionFilePath,
+                connectionFilePath.Name);
             try
             {
-                ReadWallet();
+                var wallet = ReadWallet();
             }
             catch (Exception exception)
             {
-                _logger.LogWarning(exception, "Reading of wallet failed -> instantiate new wallet");
+                _logger.LogWarning(exception, "Reading of wallet failed with message {Message} -> instantiate new wallet", exception.Message);
                 InitialiseNewWallet();
             }
         }
         else
         {
+            _logger.LogTrace("Initialising new wallet file {FileName} in path {Path}", connectionFilePath.Name, connectionFilePath.FullName);
             InitialiseNewWallet();
         }
     }
@@ -48,12 +55,15 @@ internal class WalletFileService : IWalletFileService
     public void WriteWallet(ConnectionWallet wallet)
     {
         var connectionFilePath = _environmentService.GetConnectionFilePath();
+        _logger.LogTrace("Write wallet to path {Path}", connectionFilePath.FullName);
         try
         {
-            var unprotectedWallet = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(wallet));
+            var serializedWallet = JsonSerializer.Serialize(wallet);
+            var unprotectedWallet = Encoding.UTF8.GetBytes(serializedWallet);
             var protectedWallet = _dataProtector.Protect(unprotectedWallet);
             using var fileStream = connectionFilePath.Create();
             fileStream.Write(protectedWallet);
+            fileStream.Flush();
         }
         catch (Exception exception)
         {
@@ -66,12 +76,17 @@ internal class WalletFileService : IWalletFileService
     public ConnectionWallet ReadWallet()
     {
         var connectionFilePath = _environmentService.GetConnectionFilePath();
+        _logger.LogTrace("Read wallet from path {Path}", connectionFilePath.FullName);
         try
         {
             var protectedWallet = File.ReadAllBytes(connectionFilePath.FullName);
             var unprotectedWallet = _dataProtector.Unprotect(protectedWallet);
-            var wallet = JsonSerializer.Deserialize<ConnectionWallet>(unprotectedWallet);
-            return wallet ?? new ConnectionWallet();
+            var wallet = JsonSerializer.Deserialize<ConnectionWallet>(unprotectedWallet) ?? new ConnectionWallet();
+            
+            _logger.LogTrace("Read wallet with {Count} connections and current connection {ConnectionName} and timestamp {Timestamp}",
+                wallet.Connections.Count(), wallet.Current?.Name, wallet.TimeStamp);
+
+            return wallet;
         }
         catch (Exception exception)
         {

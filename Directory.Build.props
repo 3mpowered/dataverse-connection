@@ -8,8 +8,15 @@
         <RepositoryUrl>https://github.com/3mpowered/dataverse-connection</RepositoryUrl>
         <PackageProjectUrl>https://github.com/3mpowered/dataverse-connection</PackageProjectUrl>
         <TargetFramework>net7.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
         <Version>0.0.0.1</Version>
         <InformationalVersion>0.0.0.1</InformationalVersion>
         <VersionSuffix>alpha</VersionSuffix>
     </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    </ItemGroup>
 </Project>

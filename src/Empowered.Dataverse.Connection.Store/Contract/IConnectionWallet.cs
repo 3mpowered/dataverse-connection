@@ -2,6 +2,7 @@
 
 public interface IConnectionWallet
 {
+    public DateTime TimeStamp { get; }
     IConnection? Current { get; }
     IEnumerable<IConnection> Connections { get; }
 }

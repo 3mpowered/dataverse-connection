@@ -4,5 +4,6 @@ public enum ConnectionType
 {
     UserPassword,
     Certificate,
-    ClientSecret
+    ClientSecret,
+    Unknown
 }

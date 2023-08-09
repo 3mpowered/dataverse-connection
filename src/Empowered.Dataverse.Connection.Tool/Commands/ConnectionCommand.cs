@@ -1,3 +1,4 @@
+using Empowered.Dataverse.Connection.Store.Contract;
 using Empowered.Dataverse.Connection.Tool.Arguments;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.PowerPlatform.Dataverse.Client;
@@ -8,15 +9,18 @@ namespace Empowered.Dataverse.Connection.Tool.Commands;
 public class ConnectionCommand
 {
     private readonly IAnsiConsole _console;
+    private readonly IConnectionStore _connectionStore;
 
-    public ConnectionCommand(IAnsiConsole console)
+    public ConnectionCommand(IAnsiConsole console, IConnectionStore connectionStore)
     {
         _console = console;
+        _connectionStore = connectionStore;
     }
 
     public async Task<int> List()
     {
-
+        var wallet = _connectionStore.List();
+        
         return 0;
     }
 
