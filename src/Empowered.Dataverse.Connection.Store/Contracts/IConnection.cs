@@ -1,8 +1,8 @@
-﻿namespace Empowered.Dataverse.Connection.Store.Contract;
+﻿namespace Empowered.Dataverse.Connection.Store.Contracts;
 
 public interface IConnection : IEquatable<IConnection>
 {
-    ConnectionType ConnectionType { get; }
+    public ConnectionType ConnectionType { get; }
     string Name { get; }
     Uri EnvironmentUrl { get; }
     string? TenantId { get; }

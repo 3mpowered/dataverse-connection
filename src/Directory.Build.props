@@ -14,4 +14,9 @@
         <InformationalVersion>0.0.0.1</InformationalVersion>
         <VersionSuffix>alpha</VersionSuffix>
     </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+        <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    </ItemGroup>
 </Project>

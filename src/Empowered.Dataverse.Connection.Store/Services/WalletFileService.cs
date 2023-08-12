@@ -36,8 +36,8 @@ internal class WalletFileService : IWalletFileService
             }
             catch (Exception exception)
             {
-                _logger.LogWarning(exception, "Reading of wallet failed with message {Message} -> instantiate new wallet", exception.Message);
-                InitialiseNewWallet();
+                _logger.LogWarning(exception, "Reading of existing wallet failed with message: {Message}", exception.Message);
+                throw;
             }
         }
         else
@@ -81,8 +81,10 @@ internal class WalletFileService : IWalletFileService
         {
             var protectedWallet = File.ReadAllBytes(connectionFilePath.FullName);
             var unprotectedWallet = _dataProtector.Unprotect(protectedWallet);
-            var wallet = JsonSerializer.Deserialize<ConnectionWallet>(unprotectedWallet) ?? new ConnectionWallet();
-            
+            var wallet = unprotectedWallet.Length != 0
+                ? JsonSerializer.Deserialize<ConnectionWallet>(unprotectedWallet)
+                : null ?? new ConnectionWallet();
+
             _logger.LogTrace("Read wallet with {Count} connections and current connection {ConnectionName} and timestamp {Timestamp}",
                 wallet.Connections.Count(), wallet.Current?.Name, wallet.TimeStamp);
 

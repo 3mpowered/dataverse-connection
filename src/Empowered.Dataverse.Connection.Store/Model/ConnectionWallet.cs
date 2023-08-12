@@ -1,18 +1,13 @@
 ﻿using System.Text.Json.Serialization;
-using Empowered.Dataverse.Connection.Store.Contract;
+using Empowered.Dataverse.Connection.Store.Contracts;
 
 namespace Empowered.Dataverse.Connection.Store.Model;
 
 internal class ConnectionWallet : IConnectionWallet
 {
-    public ConnectionWallet()
-    {
-        TimeStamp = DateTime.Now;
-    }
-
-    public ISet<Connection> ExistingConnections { get; set; } = new HashSet<Connection>();
-    public Connection? CurrentConnection { get; set; }
-    public DateTime TimeStamp { get; set; }
-    [JsonIgnore] public IConnection? Current => CurrentConnection;
-    [JsonIgnore] public IEnumerable<IConnection> Connections => ExistingConnections;
+    public ISet<SecretConnection> ExistingConnections { get; set; } = new HashSet<SecretConnection>();
+    public SecretConnection? CurrentConnection { get; set; }
+    public DateTime TimeStamp { get; set; } = DateTime.Now;
+    [JsonIgnore] public IConnection? Current => CurrentConnection?.ToPublicConnection();
+    [JsonIgnore] public IEnumerable<IConnection> Connections => ExistingConnections.Select(connection => connection.ToPublicConnection());
 }

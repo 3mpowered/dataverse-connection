@@ -1,6 +1,6 @@
 ﻿using System.Security;
 
-namespace Empowered.Dataverse.Connection.Store.Contract;
+namespace Empowered.Dataverse.Connection.Store.Contracts;
 
 /// <summary>
 /// The connection store manages a list of connection to authenticate against a Dataverse environment.
@@ -23,6 +23,20 @@ public interface IConnectionStore
     IConnection Get(string name);
 
     /// <summary>
+    /// This method returns the currently active connection.
+    /// <exception cref="InvalidOperationException">If no active connection exists.</exception>
+    /// </summary>
+    /// <returns></returns>
+    IConnection GetActive();
+
+    /// <summary>
+    /// This method tries to get the active connection. Returns true if active connection is found, otherwise returns false.
+    /// </summary>
+    /// <param name="connection">The active connection if result is true, otherwise null.</param>
+    /// <returns></returns>
+    bool TryGetActive(out IConnection? connection);
+
+    /// <summary>
     /// This method returns true if a connection by the given name exists. If the connection doesn't exist false is returned.
     /// </summary>
     /// <param name="name">The name of the given connection</param>
@@ -41,7 +55,7 @@ public interface IConnectionStore
     /// password</param>
     /// <param name="useConnection">Set to true if the upserted connection should be used as current connection. Defaults to false</param>
     /// <exception cref="ArgumentException">If a connection is invalid.</exception>
-    void Upsert(IConnection connection, SecureString secret, bool useConnection = false);
+    void Upsert(IConnection connection, string secret, bool useConnection = false);
 
     /// <summary>
     /// Deletes a connection by a given name.

@@ -12,6 +12,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unit", "unit", "{FF96E789-3
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connection.Store.Tests", "test\unit\Empowered.Dataverse.Connection.Store.Tests\Empowered.Dataverse.Connection.Store.Tests.csproj", "{D978FF74-555B-4A6B-900B-967AF5216473}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.SpectreConsole.Extensions", "src\Empowered.SpectreConsole.Extensions\Empowered.SpectreConsole.Extensions.csproj", "{7148BB14-5F79-4FE5-9BB5-AC714E6CECD7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration", "{1AC13EC5-281A-438A-B6EA-0ABE9F345667}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connection.Tool.Integration.Tests", "test\integration\Empowered.Dataverse.Connection.Tool.Integration.Tests\Empowered.Dataverse.Connection.Tool.Integration.Tests.csproj", "{D726805E-51F5-4D6D-B1EF-2DAE8A74E691}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connection.Client", "src\Empowered.Dataverse.Connection.Client\Empowered.Dataverse.Connection.Client.csproj", "{4C86B6CD-12EB-4E33-AEE4-4ABF192F6486}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,11 +38,27 @@ Global
 		{D978FF74-555B-4A6B-900B-967AF5216473}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D978FF74-555B-4A6B-900B-967AF5216473}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D978FF74-555B-4A6B-900B-967AF5216473}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7148BB14-5F79-4FE5-9BB5-AC714E6CECD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7148BB14-5F79-4FE5-9BB5-AC714E6CECD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7148BB14-5F79-4FE5-9BB5-AC714E6CECD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7148BB14-5F79-4FE5-9BB5-AC714E6CECD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D726805E-51F5-4D6D-B1EF-2DAE8A74E691}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D726805E-51F5-4D6D-B1EF-2DAE8A74E691}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D726805E-51F5-4D6D-B1EF-2DAE8A74E691}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D726805E-51F5-4D6D-B1EF-2DAE8A74E691}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C86B6CD-12EB-4E33-AEE4-4ABF192F6486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C86B6CD-12EB-4E33-AEE4-4ABF192F6486}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C86B6CD-12EB-4E33-AEE4-4ABF192F6486}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C86B6CD-12EB-4E33-AEE4-4ABF192F6486}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D43F98AE-C97A-4460-860E-C21A38579F1B} = {5FD0850C-5E17-4313-8AC7-058217472192}
 		{F4D9FC1A-83D8-4D43-A123-D268CAA3083A} = {5FD0850C-5E17-4313-8AC7-058217472192}
 		{FF96E789-3991-4590-928B-F736AB29D513} = {890F8F00-CDD2-4C06-9401-DD7C79CA6F4C}
 		{D978FF74-555B-4A6B-900B-967AF5216473} = {FF96E789-3991-4590-928B-F736AB29D513}
+		{7148BB14-5F79-4FE5-9BB5-AC714E6CECD7} = {5FD0850C-5E17-4313-8AC7-058217472192}
+		{1AC13EC5-281A-438A-B6EA-0ABE9F345667} = {890F8F00-CDD2-4C06-9401-DD7C79CA6F4C}
+		{D726805E-51F5-4D6D-B1EF-2DAE8A74E691} = {1AC13EC5-281A-438A-B6EA-0ABE9F345667}
+		{4C86B6CD-12EB-4E33-AEE4-4ABF192F6486} = {5FD0850C-5E17-4313-8AC7-058217472192}
 	EndGlobalSection
 EndGlobal

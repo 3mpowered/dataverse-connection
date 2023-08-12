@@ -5,6 +5,7 @@ using CommandDotNet.Execution;
 using CommandDotNet.IoC.MicrosoftDependencyInjection;
 using CommandDotNet.NameCasing;
 using CommandDotNet.Spectre;
+using Empowered.Dataverse.Connection.Client.Extensions;
 using Empowered.Dataverse.Connection.Store.Extensions;
 using Empowered.Dataverse.Connection.Tool.Commands;
 using Microsoft.Extensions.Configuration;
@@ -21,7 +22,8 @@ public static class Program
         var commandClassTypes = appRunner.GetCommandClassTypes();
         var serviceCollection = new ServiceCollection()
             .AddSingleton<IAnsiConsole>(_ => AnsiConsole.Console)
-            .AddConnectionStore();
+            .AddConnectionStore()
+            .AddDataverseClientFactory();
 
         foreach (var commandClassType in commandClassTypes)
         {
@@ -44,12 +46,12 @@ public static class Program
             .UseVersionMiddleware()
             .UseTypoSuggestions()
             .UseDefaultsFromConfig()
-            .UseNameCasing(Case.SnakeCase)
+            .UseNameCasing(Case.KebabCase)
             .UseSpectreAnsiConsole()
             .UseSpectreArgumentPrompter()
             .UseMicrosoftDependencyInjection(
                 serviceCollection.BuildServiceProvider(),
-                argumentModelResolveStrategy: ResolveStrategy.ResolveOrThrow,
+                argumentModelResolveStrategy: ResolveStrategy.TryResolve,
                 commandClassResolveStrategy: ResolveStrategy.ResolveOrThrow
             ).Run(args);
     }
@@ -58,7 +60,7 @@ public static class Program
     private static void AddDebugExtensions(this AppRunner<ConnectionCommand> appRunner)
     {
         var configuration = new ConfigurationBuilder()
-            .AddJsonFile("local.settings.json")
+            .AddJsonFile("local.settings.json", optional: true)
             .Build();
 
         appRunner

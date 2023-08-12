@@ -1,4 +1,4 @@
-﻿namespace Empowered.Dataverse.Connection.Store.Contract;
+﻿namespace Empowered.Dataverse.Connection.Store.Contracts;
 
 public interface IConnectionWallet
 {

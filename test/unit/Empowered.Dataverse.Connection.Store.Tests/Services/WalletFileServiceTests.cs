@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using System.Security.Cryptography;
 using Empowered.Dataverse.Connection.Store.Constants;
-using Empowered.Dataverse.Connection.Store.Extensions;
 using Empowered.Dataverse.Connection.Store.Model;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -11,7 +10,6 @@ namespace Empowered.Dataverse.Connection.Store.Services;
 public class WalletFileServiceTests : IDisposable
 {
     private readonly IEnvironmentService _environmentService;
-    private readonly WalletFileService _walletFileService;
     private readonly IDataProtectionProvider _dataProtectionProvider;
     private readonly FileInfo _connectionFilePath;
     private readonly DirectoryInfo _directoryInfo;
@@ -30,7 +28,6 @@ public class WalletFileServiceTests : IDisposable
         _environmentService = A.Fake<IEnvironmentService>();
         A.CallTo(() => _environmentService.GetConnectionFilePath())!
             .Returns(_connectionFilePath);
-        _walletFileService = new WalletFileService(_dataProtectionProvider, _environmentService, NullLogger<WalletFileService>.Instance);
     }
 
     [Fact]
@@ -42,16 +39,28 @@ public class WalletFileServiceTests : IDisposable
 
         _connectionFilePath.Exists.Should().BeTrue();
     }
+    
+    [Fact]
+    public void ShouldInitialiseExistingWalletSuccessfully()
+    {
+        var nullLogger = NullLogger<WalletFileService>.Instance;
+
+
+        var _ = new WalletFileService(_dataProtectionProvider, _environmentService, nullLogger);
+        var _2 = new WalletFileService(_dataProtectionProvider, _environmentService, nullLogger);
+
+        _connectionFilePath.Exists.Should().BeTrue();
+    }
 
     [Fact]
     public void ShouldWriteAndReadWallet()
     {
-        var connection = new Model.Connection
+        var connection = new Model.SecretConnection
         {
             Name = "Test",
             EnvironmentUrl = new Uri("https://test.crm4.dynamics.com"),
             UserName = "test@test.com",
-            Password = "12345".ToSecureString()
+            Password = "12345"
         };
         var wallet = new ConnectionWallet
         {
@@ -59,9 +68,10 @@ public class WalletFileServiceTests : IDisposable
             ExistingConnections = { connection }
         };
 
-        _walletFileService.WriteWallet(wallet);
+        var walletFileService = new WalletFileService(_dataProtectionProvider, _environmentService, NullLogger<WalletFileService>.Instance);
+        walletFileService.WriteWallet(wallet);
 
-        var readWallet = _walletFileService.ReadWallet();
+        var readWallet = walletFileService.ReadWallet();
 
         readWallet.TimeStamp.Should().Be(wallet.TimeStamp);
         readWallet.Current.Should().BeEquivalentTo(wallet.Current);

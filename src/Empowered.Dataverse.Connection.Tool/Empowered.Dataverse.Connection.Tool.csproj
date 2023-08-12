@@ -2,10 +2,15 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+        <PackAsTool>true</PackAsTool>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+        <ToolCommandName>3mpwrd-connection</ToolCommandName>
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Empowered.Dataverse.Connection.Client\Empowered.Dataverse.Connection.Client.csproj" />
       <ProjectReference Include="..\Empowered.Dataverse.Connection.Store\Empowered.Dataverse.Connection.Store.csproj" />
+      <ProjectReference Include="..\Empowered.SpectreConsole.Extensions\Empowered.SpectreConsole.Extensions.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -22,6 +27,17 @@
       <None Update="local.settings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Remove="nupkg\**" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="nupkg\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="nupkg\**" />
+    </ItemGroup>
+
+
 
 </Project>

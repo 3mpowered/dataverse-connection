@@ -1,4 +1,6 @@
-﻿namespace Empowered.Dataverse.Connection.Store.Contract;
+﻿using Empowered.Dataverse.Connection.Store.Contracts;
+
+namespace Empowered.Dataverse.Connection.Store.Contract;
 
 public class ConnectionTests
 {
@@ -6,13 +8,13 @@ public class ConnectionTests
     public void ShouldReturnTrueForConnectionsWithSameNameOnEqualityComparison()
     {
         const string name = "Test";
-        var connection1 = new Model.Connection
+        var connection1 = new Model.SecretConnection
         {
             Name = name,
             EnvironmentUrl = new Uri("https://test.crm4.dynamics.com")
         }.As<IConnection>();
 
-        var connection2 = new Model.Connection
+        var connection2 = new Model.SecretConnection
         {
             Name = name,
             EnvironmentUrl = new Uri("https://test.crm12.dynamics.com")
@@ -25,7 +27,7 @@ public class ConnectionTests
     public void ShouldReturnFalseForEqualityComparisonOnNull()
     {
         const string name = "Test";
-        var connection1 = new Model.Connection
+        var connection1 = new Model.SecretConnection
         {
             Name = name,
             EnvironmentUrl = new Uri("https://test.crm4.dynamics.com")
@@ -40,7 +42,7 @@ public class ConnectionTests
     public void ShouldReturnTrueForEqualityComparisonOnSameReference()
     {
         const string name = "Test";
-        var connection1 = new Model.Connection
+        var connection1 = new Model.SecretConnection
         {
             Name = name,
             EnvironmentUrl = new Uri("https://test.crm4.dynamics.com")
