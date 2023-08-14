@@ -32,7 +32,7 @@ internal class WalletFileService : IWalletFileService
                 connectionFilePath.Name);
             try
             {
-                var wallet = ReadWallet();
+                _ = ReadWallet();
             }
             catch (Exception exception)
             {

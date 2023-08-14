@@ -3,7 +3,16 @@
 public enum ConnectionType
 {
     UserPassword,
-    Certificate,
+    ClientCertificate,
     ClientSecret,
-    Unknown
+    Unknown,
+    Interactive,
+    DeviceCode,
+    ManagedIdentity,
+    AzureDefault,
+    AzureCli,
+    AzureDeveloperCli,
+    AzurePowershell,
+    VisualStudio,
+    VisualStudioCode
 }

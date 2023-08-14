@@ -17,6 +17,7 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddSingleton<IConnectionStore, ConnectionStore>(serviceProvider => new ConnectionStore(
                     serviceProvider.GetRequiredService<IWalletFileService>(),
+                    serviceProvider.GetRequiredService<IConnectionMapper>(),
                     serviceProvider.GetRequiredService<ILogger<ConnectionStore>>()
                 )
             );
@@ -24,18 +25,6 @@ public static class ServiceCollectionExtensions
         return serviceCollection;
     }
     
-    public static IServiceCollection AddConnectionSecretProvider(this IServiceCollection serviceCollection)
-    {
-        TryAddCommonDependencies(serviceCollection);
-
-        return serviceCollection
-            .AddSingleton<IConnectionSecretProvider, ConnectionSecretProvider>(serviceProvider =>
-                new ConnectionSecretProvider(
-                    serviceProvider.GetRequiredService<IWalletFileService>()
-                )
-            );
-    }
-
     private static void TryAddCommonDependencies(IServiceCollection serviceCollection)
     {
         serviceCollection
@@ -51,6 +40,9 @@ public static class ServiceCollectionExtensions
                 serviceProvider.GetRequiredService<ILogger<WalletFileService>>()
             )
         );
+
+        serviceCollection.TryAddTransient<IConnectionMapper, ConnectionMapper>();
+
         serviceCollection
             .AddLogging()
             .AddDataProtection()

@@ -1,7 +1,5 @@
-﻿using Empowered.Dataverse.Connection.Store.Contract;
-using Empowered.Dataverse.Connection.Store.Contracts;
+﻿using Empowered.Dataverse.Connection.Store.Contracts;
 using Empowered.Dataverse.Connection.Store.ErrorHandling;
-using Empowered.Dataverse.Connection.Store.Extensions;
 using Empowered.Dataverse.Connection.Store.Model;
 using Empowered.Dataverse.Connection.Store.Services;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -17,22 +15,20 @@ public class ConnectionStoreTests
     {
         var nullLogger = NullLogger<ConnectionStore>.Instance;
         _walletFileService = A.Fake<IWalletFileService>();
-        _connectionStore = new ConnectionStore(_walletFileService, nullLogger);
+        _connectionStore = new ConnectionStore(_walletFileService, new ConnectionMapper(), nullLogger);
     }
 
     [Fact]
     public void ShouldGetActive()
     {
-        var activeConnection = new SecretConnection
-        {
-            Name = "active-connection",
-            EnvironmentUrl = new Uri("https://tbd.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var activeConnection = new InteractiveConnection(
+            "active-connection",
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = activeConnection,
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 activeConnection
             }
@@ -45,14 +41,11 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
-        var connection = _connectionStore.GetActive();
+        var connection = _connectionStore.GetActive<IInteractiveConnection>();
 
         connection.Should().NotBeNull();
         connection.Name.Should().Be(activeConnection.Name);
         connection.EnvironmentUrl.Should().Be(activeConnection.EnvironmentUrl);
-        connection.ApplicationId.Should().Be(activeConnection.ApplicationId);
-        connection.CertificateFilePath.Should().Be(activeConnection.CertificateFilePath);
-        connection.TenantId.Should().Be(activeConnection.TenantId);
     }
 
     [Fact]
@@ -63,7 +56,7 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var action = () => _connectionStore.GetActive();
+        var action = () => _connectionStore.GetActive<BaseConnection>();
 
         action.Should().ThrowExactly<InvalidOperationException>()
             .Where(exception =>
@@ -77,16 +70,13 @@ public class ConnectionStoreTests
     {
         const string connectionName = "to-be-deleted";
 
-        var existingConnection = new SecretConnection
-        {
-            Name = "another-connection",
-            EnvironmentUrl = new Uri("https://tbd.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var existingConnection = new InteractiveConnection("another-connection",
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             }
@@ -110,16 +100,14 @@ public class ConnectionStoreTests
     {
         const string connectionName = "to-be-deleted";
 
-        var existingConnection = new SecretConnection
-        {
-            Name = "another-connection",
-            EnvironmentUrl = new Uri("https://tbd.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var existingConnection = new InteractiveConnection(
+            "another-connection",
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             }
@@ -141,16 +129,14 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldPurgeConnections()
     {
-        var existingConnection = new SecretConnection
-        {
-            Name = "another-connection",
-            EnvironmentUrl = new Uri("https://tbd.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var existingConnection = new InteractiveConnection(
+            "another-connection",
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             }
@@ -174,16 +160,14 @@ public class ConnectionStoreTests
     {
         const string connectionName = "to-be-deleted";
 
-        var existingConnection = new SecretConnection
-        {
-            Name = connectionName,
-            EnvironmentUrl = new Uri("https://tbd.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var existingConnection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             }
@@ -208,16 +192,14 @@ public class ConnectionStoreTests
     {
         const string connectionName = "to-be-deleted";
 
-        var existingConnection = new SecretConnection
-        {
-            Name = connectionName,
-            EnvironmentUrl = new Uri("https://tbd.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var existingConnection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             }
@@ -239,12 +221,11 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldNotUseCreatedConnection()
     {
-        var newConnection = new SecretConnection
-        {
-            Name = "new-connection",
-            EnvironmentUrl = new Uri("https://new.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var newConnection = new InteractiveConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
+
         var wallet = new ConnectionWallet();
 
         A.CallTo(() => _walletFileService.ReadWallet())
@@ -254,7 +235,7 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
-        _connectionStore.Upsert(newConnection, "my-secret", false);
+        _connectionStore.Upsert(newConnection, false);
 
         wallet.CurrentConnection.Should().BeNull();
     }
@@ -262,12 +243,10 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldUseCreatedConnection()
     {
-        var newConnection = new SecretConnection
-        {
-            Name = "new-connection",
-            EnvironmentUrl = new Uri("https://new.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var newConnection = new InteractiveConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet();
 
         A.CallTo(() => _walletFileService.ReadWallet())
@@ -277,26 +256,22 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
-        _connectionStore.Upsert(newConnection, "my-secret", true);
+        _connectionStore.Upsert(newConnection, true);
 
         wallet.CurrentConnection.Should().NotBeNull();
-        wallet.CurrentConnection.Should().Match<IConnection>(connection =>
+        wallet.CurrentConnection.Should().Match<InteractiveConnection>(connection =>
             connection.Name == newConnection.Name &&
-            connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
-            connection.UserName == newConnection.UserName
+            connection.EnvironmentUrl == newConnection.EnvironmentUrl
         );
     }
 
     [Fact]
     public void ShouldNotCreateUnknownConnection()
     {
-        var newConnection = new SecretConnection
-        {
-            Name = "new-connection",
-            EnvironmentUrl = new Uri("https://new.crm4.dynamics.com"),
-            UserName = "me@example.com",
-            ApplicationId = Guid.NewGuid().ToString("D")
-        };
+        var newConnection = new BaseConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet();
 
         A.CallTo(() => _walletFileService.ReadWallet())
@@ -306,7 +281,7 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
-        var action = () => _connectionStore.Upsert(newConnection, "my-secret");
+        var action = () => _connectionStore.Upsert(newConnection);
 
         action.Should()
             .ThrowExactly<ArgumentException>()
@@ -317,14 +292,12 @@ public class ConnectionStoreTests
     }
 
     [Fact]
-    public void ShouldCreateNewUserPasswordConnection()
+    public void ShouldCreateNewDeviceCodeConnection()
     {
-        var newConnection = new SecretConnection
-        {
-            Name = "new-connection",
-            EnvironmentUrl = new Uri("https://new.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var newConnection = new DeviceCodeConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet();
 
         A.CallTo(() => _walletFileService.ReadWallet())
@@ -334,26 +307,62 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
-        _connectionStore.Upsert(newConnection, "my-secret");
+        _connectionStore.Upsert(newConnection);
 
-        wallet.Connections.Should().ContainSingle(connection =>
-            connection.Name == newConnection.Name &&
-            connection.ConnectionType == ConnectionType.UserPassword &&
-            connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
-            connection.UserName == newConnection.UserName
+        wallet.Connections
+            .OfType<IDeviceCodeConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == ConnectionType.DeviceCode &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl
+            );
+    }
+    
+    [Fact]
+    public void ShouldCreateNewUserPasswordConnection()
+    {
+        var newConnection = new UserPasswordConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com"),
+            "me@example.com",
+            "secret",
+            Guid.NewGuid().ToString("D")
         );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IUserPasswordConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == ConnectionType.UserPassword &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
+                connection.UserName == newConnection.UserName &&
+                connection.Password == newConnection.Password && 
+                connection.TenantId == newConnection.TenantId
+            );
     }
 
     [Fact]
     public void ShouldCreateNewClientSecretConnection()
     {
-        var newConnection = new SecretConnection
-        {
-            Name = "new-connection",
-            EnvironmentUrl = new Uri("https://new.crm4.dynamics.com"),
-            TenantId = Guid.NewGuid().ToString("D"),
-            ApplicationId = Guid.NewGuid().ToString("D"),
-        };
+        var newConnection = new ClientSecretConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com"),
+            Guid.NewGuid().ToString("D"),
+            Guid.NewGuid().ToString("D"),
+            "secret"
+        );
         var wallet = new ConnectionWallet();
 
         A.CallTo(() => _walletFileService.ReadWallet())
@@ -363,28 +372,32 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
-        _connectionStore.Upsert(newConnection, "my-secret");
+        _connectionStore.Upsert(newConnection);
 
-        wallet.Connections.Should().ContainSingle(connection =>
-            connection.Name == newConnection.Name &&
-            connection.ConnectionType == ConnectionType.ClientSecret &&
-            connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
-            connection.TenantId == newConnection.TenantId &&
-            connection.ApplicationId == newConnection.ApplicationId
-        );
+        wallet.Connections
+            .OfType<IClientSecretConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == ConnectionType.ClientSecret &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
+                connection.TenantId == newConnection.TenantId &&
+                connection.ApplicationId == newConnection.ApplicationId &&
+                connection.ClientSecret == newConnection.ClientSecret
+            );
     }
 
     [Fact]
     public void ShouldCreateNewCertificateConnection()
     {
-        var newConnection = new SecretConnection
-        {
-            Name = "new-connection",
-            EnvironmentUrl = new Uri("https://new.crm4.dynamics.com"),
-            ApplicationId = Guid.NewGuid().ToString("D"),
-            TenantId = Guid.NewGuid().ToString("D"),
-            CertificateFilePath = "C:\\Temp"
-        };
+        var newConnection = new ClientCertificateConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com"),
+            Guid.NewGuid().ToString("D"),
+            Guid.NewGuid().ToString("D"),
+            "C:\\Temp",
+            "secret"
+        );
         var wallet = new ConnectionWallet();
 
         A.CallTo(() => _walletFileService.ReadWallet())
@@ -394,40 +407,42 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
-        _connectionStore.Upsert(newConnection, "my-secret");
+        _connectionStore.Upsert(newConnection);
 
-        wallet.Connections.Should().ContainSingle(connection =>
-            connection.Name == newConnection.Name &&
-            connection.ConnectionType == ConnectionType.Certificate &&
-            connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
-            connection.ApplicationId == newConnection.ApplicationId &&
-            connection.TenantId == newConnection.TenantId &&
-            connection.CertificateFilePath == newConnection.CertificateFilePath
-        );
+        wallet.Connections
+            .OfType<IClientCertificateConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == ConnectionType.ClientCertificate &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
+                connection.ApplicationId == newConnection.ApplicationId &&
+                connection.TenantId == newConnection.TenantId &&
+                connection.FilePath == newConnection.FilePath &&
+                connection.Password == newConnection.Password
+            );
     }
 
     [Fact]
     public void ShouldUpsertExistingConnection()
     {
         const string connectionName = "existing-connection";
-        var existingConnection = new SecretConnection
-        {
-            Name = connectionName,
-            EnvironmentUrl = new Uri("https://new.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var existingConnection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://new.crm4.dynamics.com")
+        );
 
-        var upsertConnection = new SecretConnection
-        {
-            Name = connectionName,
-            EnvironmentUrl = new Uri("https://new-url.crm4.dynamics.com"),
-            ApplicationId = Guid.NewGuid().ToString("D"),
-            TenantId = Guid.NewGuid().ToString("D")
-        };
+        var upsertConnection = new ClientSecretConnection(
+            connectionName,
+            new Uri("https://new-url.crm4.dynamics.com"),
+            Guid.NewGuid().ToString("D"),
+            Guid.NewGuid().ToString("D"),
+            "secret"
+        );
 
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             },
@@ -441,50 +456,43 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
-        _connectionStore.Upsert(upsertConnection, "my-secret");
+        _connectionStore.Upsert(upsertConnection);
 
         wallet.Current.Should().NotBeNull();
-        wallet.Current.Name.Should().Be(upsertConnection.Name);
-        wallet.Current.EnvironmentUrl.Should().Be(upsertConnection.EnvironmentUrl);
-        wallet.Current.ApplicationId.Should().Be(upsertConnection.ApplicationId);
-        wallet.Current.TenantId.Should().Be(upsertConnection.TenantId);
-        wallet.Current.UserName.Should().BeNull();
-        wallet.Current.CertificateFilePath.Should().BeNull();
+        var connection = wallet.Current.As<IClientSecretConnection>();
+        connection.Name.Should().Be(upsertConnection.Name);
+        connection.EnvironmentUrl.Should().Be(upsertConnection.EnvironmentUrl);
+        connection.ApplicationId.Should().Be(upsertConnection.ApplicationId);
+        connection.TenantId.Should().Be(upsertConnection.TenantId);
+        connection.ClientSecret.Should().Be(upsertConnection.ClientSecret);
 
-        wallet.Connections.Should().Satisfy(connection =>
-            connection.Name == upsertConnection.Name &&
-            connection.EnvironmentUrl == upsertConnection.EnvironmentUrl &&
-            connection.ApplicationId == upsertConnection.ApplicationId &&
-            connection.TenantId == upsertConnection.TenantId &&
-            connection.UserName == null &&
-            connection.CertificateFilePath == null
-        );
+        wallet.Connections
+            .OfType<IClientSecretConnection>()
+            .Should()
+            .Satisfy(con =>
+                con.Name == upsertConnection.Name &&
+                con.EnvironmentUrl == upsertConnection.EnvironmentUrl &&
+                con.ApplicationId == upsertConnection.ApplicationId &&
+                con.TenantId == upsertConnection.TenantId &&
+                con.ClientSecret == upsertConnection.ClientSecret
+            );
     }
 
     [Fact]
     public void ShouldListExistingConnections()
     {
-        var currentConnection = new SecretConnection
-        {
-            Name = "current-connection",
-            EnvironmentUrl = new Uri("https://my.crm4.dynamics.com")
-        };
+        var currentConnection = new BaseConnection(
+            "current-connection",
+            new Uri("https://my.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = currentConnection,
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 currentConnection,
-                new()
-                {
-                    Name = "a",
-                    EnvironmentUrl = new Uri("https://a.crm4.dynamics.com")
-                },
-                new()
-                {
-                    Name = "b",
-                    EnvironmentUrl = new Uri("https://b.crm4.dynamics.com")
-                }
+                new("a", new Uri("https://a.crm4.dynamics.com")),
+                new("b", new Uri("https://b.crm4.dynamics.com"))
             }
         };
         A.CallTo(() => _walletFileService.ReadWallet())
@@ -494,12 +502,8 @@ public class ConnectionStoreTests
 
         retrievedWallet.Should().NotBeNull();
         retrievedWallet.Current.Should().NotBeNull();
-        retrievedWallet.Current.ApplicationId.Should().Be(currentConnection.ApplicationId);
         retrievedWallet.Current.EnvironmentUrl.Should().Be(currentConnection.EnvironmentUrl);
-        retrievedWallet.Current.CertificateFilePath.Should().Be(currentConnection.CertificateFilePath);
-        retrievedWallet.Current.TenantId.Should().Be(currentConnection.TenantId);
         retrievedWallet.Current.Name.Should().Be(currentConnection.Name);
-        retrievedWallet.Current.UserName.Should().Be(currentConnection.UserName);
 
         retrievedWallet.Connections
             .Should()
@@ -513,15 +517,13 @@ public class ConnectionStoreTests
     public void ShouldGetExistingConnection()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new SecretConnection
-        {
-            Name = connectionName,
-            EnvironmentUrl = new Uri("https://my-env.crm4.dynamics.com"),
-            UserName = "myuser@example.com",
-        };
+        var existingConnection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://my-env.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             }
@@ -529,27 +531,24 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var connection = _connectionStore.Get(connectionName);
+        var connection = _connectionStore.Get<IInteractiveConnection>(connectionName);
 
         connection.Should().NotBeNull();
         connection.Name.Should().Be(connectionName);
         connection.EnvironmentUrl.Should().Be(existingConnection.EnvironmentUrl);
-        connection.UserName.Should().Be(existingConnection.UserName);
     }
 
     [Fact]
     public void ShouldThrowOnNonExistingConnection()
     {
         const string connectionName = "my-connection";
-        var anotherConnection = new SecretConnection
-        {
-            Name = "another-connection",
-            EnvironmentUrl = new Uri("https://my-env.crm4.dynamics.com"),
-            UserName = "myuser@example.com",
-        };
+        var anotherConnection = new InteractiveConnection(
+            "another-connection",
+            new Uri("https://my-env.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 anotherConnection
             }
@@ -557,7 +556,7 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var action = () => _connectionStore.Get(connectionName);
+        var action = () => _connectionStore.Get<IInteractiveConnection>(connectionName);
 
         action.Should()
             .ThrowExactly<ArgumentException>()
@@ -572,7 +571,7 @@ public class ConnectionStoreTests
     {
         const string connectionName = "   ";
 
-        IConnection? connection = null;
+        IInteractiveConnection? connection = null;
         var action = () => _connectionStore.TryGet(connectionName, out connection);
 
         action.Should()
@@ -586,15 +585,13 @@ public class ConnectionStoreTests
     public void ShouldGetExistingConnectionWithTry()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new SecretConnection
-        {
-            Name = connectionName,
-            EnvironmentUrl = new Uri("https://my-env.crm4.dynamics.com"),
-            UserName = "myuser@example.com",
-        };
+        var existingConnection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://my-env.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             }
@@ -602,28 +599,25 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var isExistingConnection = _connectionStore.TryGet(connectionName, out var connection);
+        var isExistingConnection = _connectionStore.TryGet(connectionName, out IInteractiveConnection? connection);
 
         isExistingConnection.Should().BeTrue();
         connection.Should().NotBeNull();
         connection.Name.Should().Be(connectionName);
         connection.EnvironmentUrl.Should().Be(existingConnection.EnvironmentUrl);
-        connection.UserName.Should().Be(existingConnection.UserName);
     }
 
     [Fact]
     public void ShouldNotGetExistingConnectionWithTry()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new SecretConnection
-        {
-            Name = "another-connection",
-            EnvironmentUrl = new Uri("https://my-env.crm4.dynamics.com"),
-            UserName = "myuser@example.com",
-        };
+        var existingConnection = new InteractiveConnection(
+            "another-connection",
+            new Uri("https://my-env.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             }
@@ -631,7 +625,7 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var isExistingConnection = _connectionStore.TryGet(connectionName, out var connection);
+        var isExistingConnection = _connectionStore.TryGet(connectionName, out IInteractiveConnection? connection);
 
         isExistingConnection.Should().BeFalse();
         connection.Should().BeNull();
@@ -641,15 +635,13 @@ public class ConnectionStoreTests
     public void ShouldUseExistingConnection()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new SecretConnection
-        {
-            Name = connectionName,
-            EnvironmentUrl = new Uri("https://my.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var existingConnection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://my.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             },
@@ -666,27 +658,22 @@ public class ConnectionStoreTests
         _connectionStore.Use(connectionName);
 
         wallet.Current.Should().NotBeNull();
-        wallet.Current.Name.Should().Be(existingConnection.Name);
-        wallet.Current.EnvironmentUrl.Should().Be(existingConnection.EnvironmentUrl);
-        wallet.Current.UserName.Should().Be(existingConnection.UserName);
-        wallet.Current.ApplicationId.Should().Be(existingConnection.ApplicationId);
-        wallet.Current.TenantId.Should().Be(existingConnection.TenantId);
-        wallet.Current.CertificateFilePath.Should().Be(existingConnection.CertificateFilePath);
+        var baseConnection = wallet.Current.As<IInteractiveConnection>();
+        baseConnection.Name.Should().Be(existingConnection.Name);
+        baseConnection.EnvironmentUrl.Should().Be(existingConnection.EnvironmentUrl);
     }
 
     [Fact]
     public void ShouldThrowOnUsingNonExistingConnection()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new SecretConnection
-        {
-            Name = "another-connection",
-            EnvironmentUrl = new Uri("https://my.crm4.dynamics.com"),
-            UserName = "me@example.com"
-        };
+        var existingConnection = new InteractiveConnection(
+            "another-connection",
+            new Uri("https://my.crm4.dynamics.com")
+        );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<SecretConnection>
+            ExistingConnections = new HashSet<BaseConnection>
             {
                 existingConnection
             },

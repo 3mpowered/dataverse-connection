@@ -23,8 +23,7 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection
             .AddRequiredDependencies()
-            .AddConnectionStore()
-            .AddConnectionSecretProvider();
+            .AddConnectionStore();
         serviceCollection.TryAddSingleton<IDataverseClientFactory, DataverseClientFactory>();
         return serviceCollection;
     }

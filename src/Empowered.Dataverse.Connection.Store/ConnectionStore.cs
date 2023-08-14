@@ -1,5 +1,4 @@
-﻿using System.Security;
-using Empowered.Dataverse.Connection.Store.Contracts;
+﻿using Empowered.Dataverse.Connection.Store.Contracts;
 using Empowered.Dataverse.Connection.Store.ErrorHandling;
 using Empowered.Dataverse.Connection.Store.Model;
 using Empowered.Dataverse.Connection.Store.Services;
@@ -10,11 +9,13 @@ namespace Empowered.Dataverse.Connection.Store;
 internal class ConnectionStore : IConnectionStore
 {
     private readonly IWalletFileService _walletFileService;
+    private readonly IConnectionMapper _connectionMapper;
     private readonly ILogger<IConnectionStore> _logger;
 
-    internal ConnectionStore(IWalletFileService walletFileService, ILogger<ConnectionStore> logger)
+    internal ConnectionStore(IWalletFileService walletFileService, IConnectionMapper connectionMapper, ILogger<ConnectionStore> logger)
     {
         _walletFileService = walletFileService;
+        _connectionMapper = connectionMapper;
         _logger = logger;
     }
 
@@ -26,11 +27,11 @@ internal class ConnectionStore : IConnectionStore
         return wallet;
     }
 
-    public IConnection Get(string name)
+    public TConnection Get<TConnection>(string name) where TConnection : IBaseConnection
     {
         _logger.LogTrace("Getting connection with name {ConnectionName}", name);
 
-        if (TryGet(name, out var connection) && connection != null)
+        if (TryGet(name, out TConnection? connection) && connection != null)
         {
             _logger.LogTrace("Returning connection with name {ConnectionName}", name);
             return connection;
@@ -39,8 +40,8 @@ internal class ConnectionStore : IConnectionStore
         _logger.LogWarning("Connection with name {ConnectionName} not found", name);
         throw new ArgumentException(ErrorMessages.ConnectionNotFound(name), nameof(name));
     }
-    
-    public bool TryGet(string name, out IConnection? connection)
+
+    public bool TryGet<TConnection>(string name, out TConnection? connection) where TConnection : IBaseConnection
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -50,17 +51,17 @@ internal class ConnectionStore : IConnectionStore
 
         var wallet = _walletFileService.ReadWallet();
 
-        var isExisting = TryGetConnectionFromWallet(wallet, name, out var existingConnection);
-        connection = existingConnection;
+        var isExisting = TryGetConnectionFromWallet(wallet, name, out IBaseConnection? existingConnection);
+        connection = existingConnection is TConnection baseConnection ? baseConnection : default;
 
         _logger.LogWarning("Try getting connection with name {ConnectionName} --> exists: {ConnectionExists}", name, isExisting);
         return isExisting;
     }
-    
-    public IConnection GetActive()
+
+    public TConnection GetActive<TConnection>() where TConnection : IBaseConnection
     {
         _logger.LogTrace("Getting active connection");
-        if (TryGetActive(out var connection) && connection != null)
+        if (TryGetActive(out TConnection? connection) && connection != null)
         {
             return connection;
         }
@@ -69,10 +70,10 @@ internal class ConnectionStore : IConnectionStore
         throw new InvalidOperationException(ErrorMessages.NoActiveConnection);
     }
 
-    public bool TryGetActive(out IConnection? connection)
+    public bool TryGetActive<TConnection>(out TConnection? connection) where TConnection : IBaseConnection
     {
         var wallet = _walletFileService.ReadWallet();
-        connection = wallet.Current;
+        connection = wallet.Current is TConnection current ? current : default;
 
         var hasActiveConnection = wallet.Current != null;
         _logger.LogWarning("Try getting active connection --> exists: {ConnectionExists}", hasActiveConnection);
@@ -80,34 +81,34 @@ internal class ConnectionStore : IConnectionStore
     }
 
 
-    public void Upsert(IConnection connection, string secret, bool useConnection = false)
+    public void Upsert<TConnection>(TConnection connection, bool useConnection = false) where TConnection : IBaseConnection
     {
         var wallet = _walletFileService.ReadWallet();
 
-        var newConnection = new SecretConnection(connection, secret);
-
-        if (newConnection.ConnectionType == ConnectionType.Unknown)
+        if (connection.Type == ConnectionType.Unknown)
         {
             _logger.LogWarning("Connection {ConnectionName} has invalid connection type", connection.Name);
             throw new ArgumentException(ErrorMessages.InvalidConnection(connection.Name), nameof(connection));
         }
 
-        if (TryGet(connection.Name, out _))
+        var newConnection = _connectionMapper.ToInternal(connection);
+
+        if (TryGet<TConnection>(connection.Name, out _))
         {
             _logger.LogTrace("Connection with name {ConnectionName} already exists -> delete existing connection and recreate it", connection.Name);
             var isCurrentConnection = wallet.Current?.Name == connection.Name || useConnection;
             Delete(connection.Name);
-            Upsert(connection, secret, isCurrentConnection);
+            Upsert(connection, isCurrentConnection);
             return;
         }
 
-        _logger.LogTrace("Create connection with name {ConnectionName} and connection type {ConnectionType}", newConnection.Name,
-            newConnection.ConnectionType);
+        _logger.LogTrace("Create connection with name {ConnectionName} and connection type {ConnectionType}", connection.Name,
+            connection.Type);
         wallet.ExistingConnections.Add(newConnection);
 
         if (useConnection)
         {
-            _logger.LogTrace("Set created connection with name {ConnectionName} as current connection", newConnection.Name);
+            _logger.LogTrace("Set created connection with name {ConnectionName} as current connection", connection.Name);
             wallet.CurrentConnection = newConnection;
         }
 
@@ -151,7 +152,7 @@ internal class ConnectionStore : IConnectionStore
     public void Purge()
     {
         var wallet = _walletFileService.ReadWallet();
-        wallet.ExistingConnections = new HashSet<SecretConnection>();
+        wallet.ExistingConnections = new HashSet<BaseConnection>();
         wallet.CurrentConnection = null;
         _walletFileService.WriteWallet(wallet);
         _logger.LogTrace("Purged all connections from wallet on {Timestamp}", wallet.TimeStamp);
@@ -170,7 +171,7 @@ internal class ConnectionStore : IConnectionStore
     {
         var wallet = _walletFileService.ReadWallet();
 
-        if (!TryGetSecretConnectionFromWallet(wallet, name, out var connection))
+        if (!TryGetSecretConnectionFromWallet(wallet, name, out BaseConnection? connection))
         {
             _logger.LogTrace("Couldn't find connection with name {ConnectionName} to be used", name);
             return false;
@@ -184,17 +185,18 @@ internal class ConnectionStore : IConnectionStore
         return true;
     }
 
-    private static bool TryGetSecretConnectionFromWallet(ConnectionWallet wallet, string name, out SecretConnection? connection)
+    private static bool TryGetSecretConnectionFromWallet<TConnection>(ConnectionWallet wallet, string name, out TConnection? connection)
+        where TConnection : BaseConnection
     {
-        connection = wallet.ExistingConnections.FirstOrDefault(x => x.Name == name);
+        connection = wallet.ExistingConnections.FirstOrDefault(x => x.Name == name) as TConnection;
 
         return connection != null;
     }
-    
-    private static bool TryGetConnectionFromWallet(ConnectionWallet wallet, string name, out IConnection? connection)
+
+    private  bool TryGetConnectionFromWallet(ConnectionWallet wallet, string name, out IBaseConnection? connection)
     {
-        var isExistingConnection = TryGetSecretConnectionFromWallet(wallet, name, out var secretConnection);
-        connection = secretConnection?.ToPublicConnection();
+        var isExistingConnection = TryGetSecretConnectionFromWallet<BaseConnection>(wallet, name, out var internalConnection);
+        connection = internalConnection == null ? null : _connectionMapper.ToExternal(internalConnection);
 
         return isExistingConnection;
     }

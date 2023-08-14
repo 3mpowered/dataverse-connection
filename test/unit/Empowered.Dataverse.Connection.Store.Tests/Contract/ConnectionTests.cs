@@ -1,4 +1,5 @@
 ﻿using Empowered.Dataverse.Connection.Store.Contracts;
+using Empowered.Dataverse.Connection.Store.Model;
 
 namespace Empowered.Dataverse.Connection.Store.Contract;
 
@@ -8,17 +9,9 @@ public class ConnectionTests
     public void ShouldReturnTrueForConnectionsWithSameNameOnEqualityComparison()
     {
         const string name = "Test";
-        var connection1 = new Model.SecretConnection
-        {
-            Name = name,
-            EnvironmentUrl = new Uri("https://test.crm4.dynamics.com")
-        }.As<IConnection>();
+        var connection1 = new BaseConnection(name, new Uri("https://test.crm4.dynamics.com")).As<IBaseConnection>();
 
-        var connection2 = new Model.SecretConnection
-        {
-            Name = name,
-            EnvironmentUrl = new Uri("https://test.crm12.dynamics.com")
-        }.As<IConnection>();
+        var connection2 = new BaseConnection(name, new Uri("https://test.crm12.dynamics.com")).As<IBaseConnection>();
 
         connection1.Equals(connection2).Should().BeTrue();
     }
@@ -27,13 +20,9 @@ public class ConnectionTests
     public void ShouldReturnFalseForEqualityComparisonOnNull()
     {
         const string name = "Test";
-        var connection1 = new Model.SecretConnection
-        {
-            Name = name,
-            EnvironmentUrl = new Uri("https://test.crm4.dynamics.com")
-        }.As<IConnection>();
+        var connection1 = new BaseConnection(name, new Uri("https://test.crm4.dynamics.com")).As<IBaseConnection>();
 
-        IConnection? connection2 = null;
+        IBaseConnection? connection2 = null;
 
         connection1.Equals(connection2).Should().BeFalse();
     }
@@ -42,11 +31,7 @@ public class ConnectionTests
     public void ShouldReturnTrueForEqualityComparisonOnSameReference()
     {
         const string name = "Test";
-        var connection1 = new Model.SecretConnection
-        {
-            Name = name,
-            EnvironmentUrl = new Uri("https://test.crm4.dynamics.com")
-        }.As<IConnection>();
+        var connection1 = new BaseConnection(name, new Uri("https://test.crm4.dynamics.com")).As<IBaseConnection>();
 
         connection1.Equals(connection1).Should().BeTrue();
     }

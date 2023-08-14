@@ -39,15 +39,15 @@ public class WalletFileServiceTests : IDisposable
 
         _connectionFilePath.Exists.Should().BeTrue();
     }
-    
+
     [Fact]
     public void ShouldInitialiseExistingWalletSuccessfully()
     {
         var nullLogger = NullLogger<WalletFileService>.Instance;
 
 
-        var _ = new WalletFileService(_dataProtectionProvider, _environmentService, nullLogger);
-        var _2 = new WalletFileService(_dataProtectionProvider, _environmentService, nullLogger);
+        _ = new WalletFileService(_dataProtectionProvider, _environmentService, nullLogger);
+        _ = new WalletFileService(_dataProtectionProvider, _environmentService, nullLogger);
 
         _connectionFilePath.Exists.Should().BeTrue();
     }
@@ -55,13 +55,13 @@ public class WalletFileServiceTests : IDisposable
     [Fact]
     public void ShouldWriteAndReadWallet()
     {
-        var connection = new Model.SecretConnection
-        {
-            Name = "Test",
-            EnvironmentUrl = new Uri("https://test.crm4.dynamics.com"),
-            UserName = "test@test.com",
-            Password = "12345"
-        };
+        var connection = new UserPasswordConnection(
+            "Test",
+            new Uri("https://test.crm4.dynamics.com"),
+            "test@test.com",
+            "12345",
+            Guid.NewGuid().ToString("D")
+        );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = connection,

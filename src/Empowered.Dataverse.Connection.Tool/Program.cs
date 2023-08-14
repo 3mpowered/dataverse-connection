@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using CommandDotNet;
+using CommandDotNet.Builders;
 using CommandDotNet.Builders.ArgumentDefaults;
 using CommandDotNet.Execution;
 using CommandDotNet.IoC.MicrosoftDependencyInjection;
@@ -8,6 +9,7 @@ using CommandDotNet.Spectre;
 using Empowered.Dataverse.Connection.Client.Extensions;
 using Empowered.Dataverse.Connection.Store.Extensions;
 using Empowered.Dataverse.Connection.Tool.Commands;
+using Empowered.SpectreConsole.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
@@ -31,6 +33,7 @@ public static class Program
         }
 
         var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables("3MPWRD:")
             .Build();
 
@@ -42,7 +45,9 @@ public static class Program
                     key => configuration[key],
                     DefaultSources.EnvVar.GetKeyFromAttribute
                 )
-            ).UseCancellationHandlers()
+            )
+            .UseErrorHandler(ErrorHandler)
+            .UseCancellationHandlers()
             .UseVersionMiddleware()
             .UseTypoSuggestions()
             .UseDefaultsFromConfig()
@@ -56,8 +61,23 @@ public static class Program
             ).Run(args);
     }
 
+    private static int ErrorHandler(CommandContext? context, Exception exception)
+    {
+        var errorCode = ExitCodes.Error.GetAwaiter().GetResult();
+
+        if (context?.DependencyResolver == null)
+        {
+            return errorCode;
+        }
+
+        var console = context.DependencyResolver.Resolve<IAnsiConsole>() ?? AnsiConsole.Console;
+
+        console.Error(exception.Message.EscapeMarkup());
+        return errorCode;
+    }
+
     [Conditional("DEBUG")]
-    private static void AddDebugExtensions(this AppRunner<ConnectionCommand> appRunner)
+    private static void AddDebugExtensions(this AppRunner appRunner)
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("local.settings.json", optional: true)
