@@ -5,7 +5,7 @@ public interface IBaseConnection : IEquatable<IBaseConnection>
     string Name { get; }
     Uri EnvironmentUrl { get; }
     ConnectionType Type { get; }
-    TConnection ToConnection<TConnection>() where TConnection : IBaseConnection => (TConnection)this;
+    TConnection ToImplementation<TConnection>() where TConnection : IBaseConnection => (TConnection)this;
 
     IBaseConnection Clone();
 

@@ -5,59 +5,24 @@ using Azure.Identity;
 using Empowered.Dataverse.Connection.Client.Contracts;
 using Empowered.Dataverse.Connection.Client.Settings;
 using Empowered.Dataverse.Connection.Store.Contracts;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Empowered.Dataverse.Connection.Client.Authentication;
 
-public class TokenProvider : ITokenProvider
+public class CredentialProvider : ICredentialProvider
 {
-    private readonly IMemoryCache _cache;
-    private readonly ICredentialProvider _credentialProvider;
-    private readonly ILogger<TokenProvider> _logger;
     private readonly DataverseClientOptions _clientOptions;
 
-    public static readonly TimeSpan CacheTreshold = TimeSpan.FromMinutes(5);
-
-    public TokenProvider(IOptions<DataverseClientOptions> options, IMemoryCache cache, ICredentialProvider credentialProvider,
-        ILogger<TokenProvider> logger) : this(options.Value, cache, credentialProvider, logger)
+    public CredentialProvider(IOptions<DataverseClientOptions> options) : this(options.Value)
     {
     }
 
-    public TokenProvider(DataverseClientOptions options, IMemoryCache cache, ICredentialProvider credentialProvider, ILogger<TokenProvider> logger)
+    public CredentialProvider(DataverseClientOptions options)
     {
-        _cache = cache;
-        _credentialProvider = credentialProvider;
-        _logger = logger;
         _clientOptions = options;
     }
 
-    public async Task<string> GetToken(string environmentUri)
-    {
-        var instanceUrl = new Uri(environmentUri);
-        var scope = $"{instanceUrl.Scheme}://{instanceUrl.Authority}/.default";
-        _logger.LogTrace("Retrieving token for environment {InstanceUrl} with scope {Scope}", environmentUri, scope);
-
-        if (_cache.TryGetValue<AccessToken>($"{_clientOptions.ConnectionType}-{scope}", out var token))
-        {
-            _logger.LogTrace("Getting cached token expiring {ExpirationDate}", token.ExpiresOn);
-            return token.Token;
-        }
-
-        var credential = _credentialProvider.GetCredential();
-        _logger.LogTrace("Authenticating with credential {CredentialType} for connection type {ConnectionType}", credential.GetType(),
-            _clientOptions.ConnectionType);
-
-        token = await credential.GetTokenAsync(new TokenRequestContext(new[] { scope }), new CancellationToken());
-        var cacheExpirationDate = token.ExpiresOn - CacheTreshold;
-        _cache.Set(scope, token, cacheExpirationDate);
-        _logger.LogTrace("Caching token with expiration date {ExpirationDate} until {CacheExpiration}", token.ExpiresOn, cacheExpirationDate);
-
-        return token.Token;
-    }
-
-    private TokenCredential GetTokenCredential()
+    public TokenCredential GetCredential()
     {
         return _clientOptions.ConnectionType switch
         {
@@ -89,7 +54,7 @@ public class TokenProvider : ITokenProvider
                 DisableInstanceDiscovery = false,
                 RetryPolicy = new RetryPolicy(1),
             }),
-            ConnectionType.ManagedIdentity => new ManagedIdentityCredential(_clientOptions.ApplicationId),
+            ConnectionType.ManagedIdentity => GetManagedIdentityCredential(),
             ConnectionType.AzureDefault => !string.IsNullOrWhiteSpace(_clientOptions.ApplicationId)
                 ? new DefaultAzureCredential(new DefaultAzureCredentialOptions
                     {
@@ -104,5 +69,11 @@ public class TokenProvider : ITokenProvider
             ConnectionType.VisualStudioCode => new VisualStudioCodeCredential(),
             _ => throw new ArgumentOutOfRangeException($"Unknown connection type {_clientOptions.ConnectionType}")
         };
+    }
+
+    private ManagedIdentityCredential GetManagedIdentityCredential()
+    {
+        // TODO: Implement resource identifier
+        return new ManagedIdentityCredential(_clientOptions.ApplicationId);
     }
 }

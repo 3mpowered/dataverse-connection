@@ -1,4 +1,6 @@
-﻿using Empowered.Dataverse.Connection.Store.Contracts;
+﻿using System.Diagnostics.CodeAnalysis;
+using Empowered.Dataverse.Connection.Store.Contracts;
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
 namespace Empowered.Dataverse.Connection.Client.Settings;
 
@@ -10,6 +12,7 @@ public class DataverseClientOptions
     {
     }
 
+    [SetsRequiredMembers]
     public DataverseClientOptions(IBaseConnection connection)
     {
         Name = connection.Name;
@@ -18,7 +21,7 @@ public class DataverseClientOptions
 
         if (ConnectionType == ConnectionType.ClientCertificate)
         {
-            var certificateConnection = connection.ToConnection<IClientCertificateConnection>();
+            var certificateConnection = connection.ToImplementation<IClientCertificateConnection>();
             ApplicationId = certificateConnection.ApplicationId;
             TenantId = certificateConnection.TenantId;
             CertificateFilePath = certificateConnection.FilePath;
@@ -27,34 +30,35 @@ public class DataverseClientOptions
 
         if (ConnectionType == ConnectionType.ClientSecret)
         {
-            var clientSecretConnection = connection.ToConnection<IClientSecretConnection>();
+            var clientSecretConnection = connection.ToImplementation<IClientSecretConnection>();
             ApplicationId = clientSecretConnection.ApplicationId;
             TenantId = clientSecretConnection.TenantId;
             ClientSecret = clientSecretConnection.ClientSecret;
         }
 
-        if (ConnectionType == ConnectionType.Interactive)
-        {
-            var interactiveUserConnection = connection.ToConnection<IInteractiveConnection>();
-        }
-
         if (ConnectionType == ConnectionType.UserPassword)
         {
-            var userPasswordConnection = connection.ToConnection<IUserPasswordConnection>();
+            var userPasswordConnection = connection.ToImplementation<IUserPasswordConnection>();
             UserName = userPasswordConnection.UserName;
             Password = userPasswordConnection.Password;
             TenantId = userPasswordConnection.TenantId;
         }
+
+        if (ConnectionType == ConnectionType.ManagedIdentity)
+        {
+            var managedIdentityConnection = connection.ToImplementation<IManagedIdentityConnection>();
+            ApplicationId = managedIdentityConnection.ClientId;
+        }
     }
 
-    public string Name { get; set; }
-    public ConnectionType ConnectionType { get; set; }
-    public Uri EnvironmentUrl { get; set; }
-    public string? ApplicationId { get; set; }
-    public string? TenantId { get; set; }
-    public string? ClientSecret { get; set; }
-    public string? CertificateFilePath { get; set; }
-    public string? CertificatePassword { get; set; }
-    public string? UserName { get; set; }
-    public string? Password { get; set; }
+    public required string Name { get; init; }
+    public required ConnectionType ConnectionType { get; init; }
+    public required Uri EnvironmentUrl { get; init; }
+    public string? ApplicationId { get; init; }
+    public string? TenantId { get; init; }
+    public string? ClientSecret { get; init; }
+    public string? CertificateFilePath { get; init; }
+    public string? CertificatePassword { get; init; }
+    public string? UserName { get; init; }
+    public string? Password { get; init; }
 }

@@ -26,7 +26,7 @@ public class WalletFileServiceTests : IDisposable
         _connectionFilePath = new FileInfo(Path.Combine(_directoryInfo.FullName, Application.ConnectionFile));
         _dataProtectionProvider = DataProtectionProvider.Create(Application.Name);
         _environmentService = A.Fake<IEnvironmentService>();
-        A.CallTo(() => _environmentService.GetConnectionFilePath())!
+        A.CallTo(() => _environmentService.GetConnectionFilePath())
             .Returns(_connectionFilePath);
     }
 
@@ -51,7 +51,26 @@ public class WalletFileServiceTests : IDisposable
 
         _connectionFilePath.Exists.Should().BeTrue();
     }
+    
+    [Fact]
+    public void ShouldThrowOnInitializationOfExistingWallet()
+    {
+        var nullLogger = NullLogger<WalletFileService>.Instance;
+        _ = new WalletFileService(_dataProtectionProvider, _environmentService, nullLogger);
+        
+        var dataProtectionProvider = A.Fake<IDataProtectionProvider>();
+        var dataProtector = A.Fake<IDataProtector>();
+        A.CallTo(() => dataProtectionProvider.CreateProtector(A<string>._))
+            .Returns(dataProtector);
+        A.CallTo(() => dataProtector.Unprotect(A<byte[]>._))
+            .Throws<CryptographicException>();
+        
+        var action = () => new WalletFileService(dataProtectionProvider, _environmentService, nullLogger);
 
+        action.Should()
+            .ThrowExactly<CryptographicException>();
+    }
+    
     [Fact]
     public void ShouldWriteAndReadWallet()
     {

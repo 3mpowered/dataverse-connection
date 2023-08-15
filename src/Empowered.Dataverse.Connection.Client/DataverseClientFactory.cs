@@ -26,7 +26,8 @@ public class DataverseClientFactory : IDataverseClientFactory
         var tokenProviderLogger = _serviceProvider.GetRequiredService<ILogger<TokenProvider>>();
         var connection = string.IsNullOrWhiteSpace(name) ? _connectionStore.GetActive() : _connectionStore.Get(name);
         var clientOptions = new DataverseClientOptions(connection);
-        var tokenProvider = new TokenProvider(clientOptions, memoryCache, tokenProviderLogger);
+        var credentialProvider = new CredentialProvider(clientOptions);
+        var tokenProvider = new TokenProvider(clientOptions, memoryCache, credentialProvider, tokenProviderLogger);
         var serviceClientLogger = _serviceProvider.GetRequiredService<ILogger<TokenBasedServiceClient>>();
 
         return new TokenBasedServiceClient(tokenProvider, connection.EnvironmentUrl, serviceClientLogger) as TClient ??

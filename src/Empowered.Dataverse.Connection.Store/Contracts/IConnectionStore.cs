@@ -74,17 +74,7 @@ public interface IConnectionStore
     /// <exception cref="ArgumentNullException">If the given name is null or whitespace</exception>
     /// <returns></returns>
     bool TryGet<TConnection>(string name, out TConnection? connection) where TConnection : IBaseConnection;
-
-    /// <summary>
-    /// This method inserts or updates a given connection in the store.
-    /// The name of the connection is used to determine if the connection already exists. If true the found connection is updated with the given
-    /// connection data.
-    /// </summary>
-    /// <param name="connection">The non-sensitive connection data including the connection name</param>
-    /// <param name="useConnection">Set to true if the upserted connection should be used as current connection. Defaults to false</param>
-    /// <exception cref="ArgumentException">If a connection is invalid.</exception>
-    void Upsert(IBaseConnection connection, bool useConnection = false) => Upsert<IBaseConnection>(connection, useConnection);
-
+    
     /// <summary>
     /// This method inserts or updates a given connection in the store.
     /// The name of the connection is used to determine if the connection already exists. If true the found connection is updated with the given

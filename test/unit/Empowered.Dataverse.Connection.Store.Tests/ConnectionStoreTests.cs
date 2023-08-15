@@ -19,6 +19,124 @@ public class ConnectionStoreTests
     }
 
     [Fact]
+    public void ShouldDelegateDefaultGetMethodToGenericImplementation()
+    {
+        IConnectionStore connectionStore = _connectionStore;
+        const string connectionName = "connection";
+        var connection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet
+        {
+            ExistingConnections = new HashSet<BaseConnection>
+            {
+                connection
+            }
+        };
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        var baseConnection = connectionStore.Get(connectionName);
+
+        baseConnection.Should().BeEquivalentTo(connection);
+    }
+
+    [Fact]
+    public void ShouldDelegateDefaultTryGetMethodToGenericImplementation()
+    {
+        IConnectionStore connectionStore = _connectionStore;
+        const string connectionName = "connection";
+        var connection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet
+        {
+            ExistingConnections = new HashSet<BaseConnection>
+            {
+                connection
+            }
+        };
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        connectionStore.TryGet(connectionName, out var baseConnection).Should().BeTrue();
+
+        baseConnection.Should().BeEquivalentTo(connection);
+    }
+
+    [Fact]
+    public void ShouldDelegateDefaultTryGetActiveMethodToGenericImplementation()
+    {
+        IConnectionStore connectionStore = _connectionStore;
+        const string connectionName = "connection";
+        var connection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet
+        {
+            CurrentConnection = connection,
+            ExistingConnections = new HashSet<BaseConnection>
+            {
+                connection
+            }
+        };
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        connectionStore.TryGetActive(out var baseConnection).Should().BeTrue();
+
+        baseConnection.Should().BeEquivalentTo(connection);
+    }
+
+    [Fact]
+    public void ShouldDelegateDefaultGetActiveMethodToGenericImplementation()
+    {
+        IConnectionStore connectionStore = _connectionStore;
+        const string connectionName = "connection";
+        var connection = new InteractiveConnection(
+            connectionName,
+            new Uri("https://tbd.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet
+        {
+            CurrentConnection = connection,
+            ExistingConnections = new HashSet<BaseConnection>
+            {
+                connection
+            }
+        };
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        var baseConnection = connectionStore.GetActive();
+
+        baseConnection.Should().BeEquivalentTo(connection);
+    }
+
+    [Fact]
     public void ShouldGetActive()
     {
         var activeConnection = new InteractiveConnection(
@@ -235,6 +353,7 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
+        // ReSharper disable once RedundantArgumentDefaultValue
         _connectionStore.Upsert(newConnection, false);
 
         wallet.CurrentConnection.Should().BeNull();
@@ -318,6 +437,237 @@ public class ConnectionStoreTests
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl
             );
     }
+
+    [Fact]
+    public void ShouldCreateNewInteractiveConnection()
+    {
+        var newConnection = new InteractiveConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IInteractiveConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == newConnection.Type &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl
+            );
+    }
+
+    [Fact]
+    public void ShouldCreateNewAzureCliConnection()
+    {
+        var newConnection = new AzureCliConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IAzureCliConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == newConnection.Type &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl
+            );
+    }
+    
+    [Fact]
+    public void ShouldCreateNewAzureDefaultConnection()
+    {
+        var newConnection = new AzureDefaultConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IAzureDefaultConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == newConnection.Type &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl
+            );
+    }
+    
+    
+    [Fact]
+    public void ShouldCreateNewAzureDeveloperCliConnection()
+    {
+        var newConnection = new AzureDeveloperCliConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IAzureDeveloperCliConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == newConnection.Type &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl
+            );
+    }
+    
+    
+    [Fact]
+    public void ShouldCreateNewAzurePowershellConnection()
+    {
+        var newConnection = new AzurePowershellConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IAzurePowershellConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == newConnection.Type &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl
+            );
+    }
+    
+    
+    [Fact]
+    public void ShouldCreateNewVisualStudioCodeConnection()
+    {
+        var newConnection = new VisualStudioCodeConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IVisualStudioCodeConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == newConnection.Type &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl
+            );
+    }
+
+    
+    [Fact]
+    public void ShouldCreateNewVisualStudioConnection()
+    {
+        var newConnection = new VisualStudioConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com")
+        );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IVisualStudioConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == newConnection.Type &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl
+            );
+    }
+    
+    
+    [Fact]
+    public void ShouldCreateNewManagedIdentityConnection()
+    {
+        var newConnection = new ManagedIdentityConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com"),
+            Guid.NewGuid().ToString("D")
+        );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IManagedIdentityConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == newConnection.Type &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
+                connection.ClientId == newConnection.ClientId
+            );
+    }
     
     [Fact]
     public void ShouldCreateNewUserPasswordConnection()
@@ -348,7 +698,7 @@ public class ConnectionStoreTests
                 connection.Type == ConnectionType.UserPassword &&
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
                 connection.UserName == newConnection.UserName &&
-                connection.Password == newConnection.Password && 
+                connection.Password == newConnection.Password &&
                 connection.TenantId == newConnection.TenantId
             );
     }
@@ -389,6 +739,42 @@ public class ConnectionStoreTests
 
     [Fact]
     public void ShouldCreateNewCertificateConnection()
+    {
+        var newConnection = new ClientCertificateConnection(
+            "new-connection",
+            new Uri("https://new.crm4.dynamics.com"),
+            Guid.NewGuid().ToString("D"),
+            Guid.NewGuid().ToString("D"),
+            "C:\\Temp",
+            "secret"
+        );
+        var wallet = new ConnectionWallet();
+
+        A.CallTo(() => _walletFileService.ReadWallet())
+            .Returns(wallet);
+        A.CallTo(() => _walletFileService.WriteWallet(A<ConnectionWallet>._))
+            .Invokes(call =>
+                wallet = call.Arguments.First().As<ConnectionWallet>()
+            );
+
+        _connectionStore.Upsert(newConnection);
+
+        wallet.Connections
+            .OfType<IClientCertificateConnection>()
+            .Should()
+            .ContainSingle(connection =>
+                connection.Name == newConnection.Name &&
+                connection.Type == ConnectionType.ClientCertificate &&
+                connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
+                connection.ApplicationId == newConnection.ApplicationId &&
+                connection.TenantId == newConnection.TenantId &&
+                connection.FilePath == newConnection.FilePath &&
+                connection.Password == newConnection.Password
+            );
+    }
+
+    [Fact]
+    public void ShouldDelegateDefaultUpsertMethodToGenericImplementation()
     {
         var newConnection = new ClientCertificateConnection(
             "new-connection",
@@ -502,7 +888,7 @@ public class ConnectionStoreTests
 
         retrievedWallet.Should().NotBeNull();
         retrievedWallet.Current.Should().NotBeNull();
-        retrievedWallet.Current.EnvironmentUrl.Should().Be(currentConnection.EnvironmentUrl);
+        retrievedWallet.Current!.EnvironmentUrl.Should().Be(currentConnection.EnvironmentUrl);
         retrievedWallet.Current.Name.Should().Be(currentConnection.Name);
 
         retrievedWallet.Connections
@@ -603,7 +989,7 @@ public class ConnectionStoreTests
 
         isExistingConnection.Should().BeTrue();
         connection.Should().NotBeNull();
-        connection.Name.Should().Be(connectionName);
+        connection!.Name.Should().Be(connectionName);
         connection.EnvironmentUrl.Should().Be(existingConnection.EnvironmentUrl);
     }
 

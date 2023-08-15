@@ -37,6 +37,7 @@ public static class ServiceCollectionExtensions
                 .GetSection(DataverseClientOptions.Section)
                 .Bind(options)
             );
+        serviceCollection.TryAddTransient<ICredentialProvider, CredentialProvider>();
         serviceCollection.TryAddScoped<ITokenProvider, TokenProvider>();
         return serviceCollection;
     }

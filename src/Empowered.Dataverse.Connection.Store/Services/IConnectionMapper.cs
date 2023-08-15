@@ -5,6 +5,6 @@ namespace Empowered.Dataverse.Connection.Store.Services;
 
 internal interface IConnectionMapper
 {
-    IBaseConnection ToExternal(BaseConnection? connection);
+    IBaseConnection ToExternal(BaseConnection connection);
     BaseConnection ToInternal(IBaseConnection connection);
 }

@@ -81,9 +81,9 @@ internal class WalletFileService : IWalletFileService
         {
             var protectedWallet = File.ReadAllBytes(connectionFilePath.FullName);
             var unprotectedWallet = _dataProtector.Unprotect(protectedWallet);
-            var wallet = unprotectedWallet.Length != 0
+            var wallet = (unprotectedWallet.Length != 0
                 ? JsonSerializer.Deserialize<ConnectionWallet>(unprotectedWallet)
-                : null ?? new ConnectionWallet();
+                : null) ?? new ConnectionWallet();
 
             _logger.LogTrace("Read wallet with {Count} connections and current connection {ConnectionName} and timestamp {Timestamp}",
                 wallet.Connections.Count(), wallet.Current?.Name, wallet.TimeStamp);

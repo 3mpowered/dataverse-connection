@@ -7,5 +7,6 @@ public class ConnectionNameArguments : IArgumentModel
 {
     [Option(Description = "The name to identify the connection")]
     [EnvVar(ConfigurationKeys.ConnectionName)]
-    public string Name { get; set; }
+    // ReSharper disable once UnusedAutoPropertyAccessor.Global
+    public required string Name { get; init; }
 }

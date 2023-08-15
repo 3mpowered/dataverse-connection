@@ -9,20 +9,17 @@ public abstract class ApplicationConnection : TenantConnection, IApplicationConn
     [JsonConstructor]
     protected ApplicationConnection()
     {
-        Type = ConnectionType.Unknown;
     }
     
     [SetsRequiredMembers]
     protected ApplicationConnection(IApplicationConnection connection) : base(connection)
     {
         ApplicationId = connection.ApplicationId;
-        TenantId = connection.TenantId;
     }
 
     [SetsRequiredMembers]
     protected ApplicationConnection(string name, Uri environmentUrl, string applicationId, string tenantId) : base(name, environmentUrl, tenantId)
     {
-        Type = ConnectionType.Unknown;
         ApplicationId = applicationId;
     }
 
