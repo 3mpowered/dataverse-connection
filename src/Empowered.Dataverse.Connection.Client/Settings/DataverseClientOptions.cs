@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Empowered.Dataverse.Connection.Store.Contracts;
+using Empowered.Dataverse.Connection.Store.Model;
+
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
 namespace Empowered.Dataverse.Connection.Client.Settings;
@@ -7,7 +9,7 @@ namespace Empowered.Dataverse.Connection.Client.Settings;
 public class DataverseClientOptions : IDataverseConnection
 {
     public const string Section = "3mpowered__Dataverse";
-
+    
     public DataverseClientOptions()
     {
     }
@@ -37,8 +39,5 @@ public class DataverseClientOptions : IDataverseConnection
     public string? CertificatePassword { get; init; }
     public string? UserName { get; init; }
     public string? Password { get; init; }
-    public IDataverseConnection Clone()
-    {
-        throw new NotImplementedException();
-    }
+    public IDataverseConnection Clone() => new DataverseConnection(this);
 }

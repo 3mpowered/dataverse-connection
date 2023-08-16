@@ -28,9 +28,9 @@ public class DataverseClientFactory : IDataverseClientFactory
         var clientOptions = new DataverseClientOptions(connection);
         var credentialProvider = new CredentialProvider(clientOptions);
         var tokenProvider = new TokenProvider(clientOptions, memoryCache, credentialProvider, tokenProviderLogger);
-        var serviceClientLogger = _serviceProvider.GetRequiredService<ILogger<TokenBasedServiceClient>>();
+        var serviceClientLogger = _serviceProvider.GetRequiredService<ILogger<EmpoweredServiceClient>>();
 
-        return new TokenBasedServiceClient(tokenProvider, connection.EnvironmentUrl, serviceClientLogger) as TClient ??
+        return new EmpoweredServiceClient(tokenProvider, connection.EnvironmentUrl, serviceClientLogger) as TClient ??
                throw new InvalidCastException($"Client type {typeof(TClient).Name} is invalid.");
     }
 }

@@ -23,8 +23,7 @@ public static class Program
         var appRunner = new AppRunner<ConnectionCommand>();
         var commandClassTypes = appRunner.GetCommandClassTypes();
         var serviceCollection = new ServiceCollection()
-            .AddConnectionCommand()
-            .AddSingleton<IAnsiConsole>(_ => AnsiConsole.Console);
+            .AddConnectionCommand();
 
         foreach (var commandClassType in commandClassTypes)
         {

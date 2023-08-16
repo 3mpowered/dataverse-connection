@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
         where TClient : class, IOrganizationService
     {
         serviceCollection.AddRequiredDependencies();
-        serviceCollection.TryAddScoped(typeof(TClient), typeof(TokenBasedServiceClient));
+        serviceCollection.TryAddScoped(typeof(TClient), typeof(EmpoweredServiceClient));
         return serviceCollection;
     }
 
@@ -32,6 +32,7 @@ public static class ServiceCollectionExtensions
     {
         serviceCollection
             .AddMemoryCache()
+            .AddLogging()
             .AddOptions<DataverseClientOptions>()
             .Configure<IConfiguration>((options, configuration) => configuration
                 .GetSection(DataverseClientOptions.Section)

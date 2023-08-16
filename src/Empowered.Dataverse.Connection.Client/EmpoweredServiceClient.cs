@@ -7,9 +7,9 @@ using Microsoft.PowerPlatform.Dataverse.Client.Utils;
 
 namespace Empowered.Dataverse.Connection.Client;
 
-public class TokenBasedServiceClient : ServiceClient
+public class EmpoweredServiceClient : ServiceClient
 {
-    public TokenBasedServiceClient(ITokenProvider tokenProvider, Uri environmentUrl, ILogger<TokenBasedServiceClient> logger) 
+    public EmpoweredServiceClient(ITokenProvider tokenProvider, Uri environmentUrl, ILogger<EmpoweredServiceClient> logger) 
         : base(environmentUrl, tokenProvider.GetToken, logger: logger)
     {
         if (LastException != null)
@@ -23,7 +23,7 @@ public class TokenBasedServiceClient : ServiceClient
         }
     }
     
-    public TokenBasedServiceClient(ITokenProvider tokenProvider, IOptions<DataverseClientOptions> options, ILogger<TokenBasedServiceClient> logger)
+    public EmpoweredServiceClient(ITokenProvider tokenProvider, IOptions<DataverseClientOptions> options, ILogger<EmpoweredServiceClient> logger)
         : this(tokenProvider, options.Value.EnvironmentUrl, logger: logger)
     {
     

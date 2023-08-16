@@ -2,6 +2,7 @@
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Azure.Identity;
+using Empowered.Dataverse.Connection.Client.Constants;
 using Empowered.Dataverse.Connection.Client.Contracts;
 using Empowered.Dataverse.Connection.Client.Settings;
 using Empowered.Dataverse.Connection.Store.Contracts;
@@ -30,7 +31,7 @@ public class CredentialProvider : ICredentialProvider
                 _clientOptions.UserName,
                 _clientOptions.Password,
                 _clientOptions.TenantId,
-                "51f81489-12ee-4a9e-aaae-a2591f45987d" // TODO: Add Constant
+                ConnectionDefaults.DefaultAppId
             ),
             ConnectionType.ClientCertificate => new ClientCertificateCredential(
                 _clientOptions.TenantId,

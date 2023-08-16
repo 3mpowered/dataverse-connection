@@ -20,7 +20,10 @@ public class TokenProvider : ITokenProvider
 
     public static readonly TimeSpan CacheTreshold = TimeSpan.FromMinutes(5);
 
-    public TokenProvider(IOptions<DataverseClientOptions> options, IMemoryCache cache, ICredentialProvider credentialProvider,
+    public TokenProvider(
+        IOptions<DataverseClientOptions> options, 
+        IMemoryCache cache, 
+        ICredentialProvider credentialProvider,
         ILogger<TokenProvider> logger) : this(options.Value, cache, credentialProvider, logger)
     {
     }
@@ -39,7 +42,8 @@ public class TokenProvider : ITokenProvider
         var scope = $"{instanceUrl.Scheme}://{instanceUrl.Authority}/.default";
         _logger.LogTrace("Retrieving token for environment {InstanceUrl} with scope {Scope}", environmentUri, scope);
 
-        if (_cache.TryGetValue<AccessToken>($"{_clientOptions.Type}-{scope}", out var token))
+        object key = $"{_clientOptions.Type}-{scope}";
+        if (_cache.TryGetValue<AccessToken>(key, out var token))
         {
             _logger.LogTrace("Getting cached token expiring {ExpirationDate}", token.ExpiresOn);
             return token.Token;
