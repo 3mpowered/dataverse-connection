@@ -31,7 +31,9 @@ public class ConnectionConfigurationProvider : ConfigurationProvider
         
         foreach (var propertyInfo in optionProperties)
         {
-            Data.Add($"{nameof(DataverseClientOptions.Section)}__{propertyInfo.Name}", propertyInfo.GetValue(options)?.ToString());
+            var key = $"{DataverseClientOptions.Section}:{propertyInfo.Name}";
+            var value = propertyInfo.GetValue(options)?.ToString();
+            Data.Add(key, value);
         }
 
         base.Load();

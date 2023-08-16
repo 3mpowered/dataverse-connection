@@ -400,3 +400,6 @@ FodyWeavers.xsd
 
 # settings
 local.settings.json
+
+# resources
+local/

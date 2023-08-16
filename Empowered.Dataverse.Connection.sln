@@ -26,6 +26,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connect
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.Connection.Client.Tests", "test\unit\Empowered.Dataverse.Connection.Client.Tests\Empowered.Dataverse.Connection.Client.Tests.csproj", "{BBB8922B-9AE8-444D-A7AD-C3A8A4759347}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Empowered.Dataverse.CommandDotnet.Xunit.Extensions", "test\integration\Empowered.Dataverse.CommandDotnet.Xunit.Extensions\Empowered.Dataverse.CommandDotnet.Xunit.Extensions.csproj", "{AD74C534-26D1-4F06-AA9B-822950B8D10E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{BBB8922B-9AE8-444D-A7AD-C3A8A4759347}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBB8922B-9AE8-444D-A7AD-C3A8A4759347}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBB8922B-9AE8-444D-A7AD-C3A8A4759347}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD74C534-26D1-4F06-AA9B-822950B8D10E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD74C534-26D1-4F06-AA9B-822950B8D10E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD74C534-26D1-4F06-AA9B-822950B8D10E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD74C534-26D1-4F06-AA9B-822950B8D10E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D43F98AE-C97A-4460-860E-C21A38579F1B} = {5FD0850C-5E17-4313-8AC7-058217472192}
@@ -81,5 +87,6 @@ Global
 		{EF2BF52F-0D52-471A-8C8D-83AD86705DAB} = {5FD0850C-5E17-4313-8AC7-058217472192}
 		{4E326E8B-E641-41B3-82D7-ED1861E5FB3B} = {FF96E789-3991-4590-928B-F736AB29D513}
 		{BBB8922B-9AE8-444D-A7AD-C3A8A4759347} = {FF96E789-3991-4590-928B-F736AB29D513}
+		{AD74C534-26D1-4F06-AA9B-822950B8D10E} = {1AC13EC5-281A-438A-B6EA-0ABE9F345667}
 	EndGlobalSection
 EndGlobal

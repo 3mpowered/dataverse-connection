@@ -167,7 +167,7 @@ public partial class ConnectionCommandTests
             Name = "connection",
             EnvironmentUrl = EnvironmentUrl,
             Type = ConnectionType.Interactive,
-            TestConnection = true
+            SkipConnectionTest = false
         };
 
 
@@ -206,7 +206,7 @@ public partial class ConnectionCommandTests
             Name = "connection",
             EnvironmentUrl = EnvironmentUrl,
             Type = ConnectionType.Interactive,
-            TestConnection = true
+            SkipConnectionTest = false
         };
 
         var action = () => _connectionCommand.Upsert(arguments);

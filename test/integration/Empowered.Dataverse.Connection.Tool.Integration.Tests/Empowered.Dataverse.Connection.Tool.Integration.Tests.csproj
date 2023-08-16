@@ -7,11 +7,36 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="CommandDotNet.TestTools" Version="6.0.2" />
       <PackageReference Include="Spectre.Console.Testing" Version="0.47.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\src\Empowered.Dataverse.Connection.Tool\Empowered.Dataverse.Connection.Tool.csproj" />
+      <ProjectReference Include="..\Empowered.Dataverse.CommandDotnet.Xunit.Extensions\Empowered.Dataverse.CommandDotnet.Xunit.Extensions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="local.settings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+
+
+    <ItemGroup>
+      <Folder Include="local\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="local\3mpowered-certificate.cer" />
+      <Content Include="local\3mpowered-certificate.cer">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="local\3mpowered-certificate.pfx" />
+      <Content Include="local\3mpowered-certificate.pfx">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

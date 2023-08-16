@@ -110,7 +110,7 @@ public class ConnectionCommand
                 var connection = arguments.Clone();
                 _connectionStore.Upsert(connection, true);
 
-                if (arguments.TestConnection)
+                if (arguments.SkipConnectionTest == false)
                 {
                     statustContext.Status("Test Connection");
                     _console.Info(Info.Testing(connectionName));

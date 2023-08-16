@@ -8,7 +8,7 @@ namespace Empowered.Dataverse.Connection.Client.Settings;
 
 public class DataverseClientOptions : IDataverseConnection
 {
-    public const string Section = "3mpowered__Dataverse";
+    public const string Section = "3mpowered:Dataverse";
     
     public DataverseClientOptions()
     {

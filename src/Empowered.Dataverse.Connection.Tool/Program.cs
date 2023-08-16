@@ -18,9 +18,11 @@ namespace Empowered.Dataverse.Connection.Tool;
 
 public static class Program
 {
-    public static int Main(string[] args)
+    public static AppRunner GetAppRunner(IAnsiConsole? console = null)
     {
-        var appRunner = new AppRunner<ConnectionCommand>();
+        var appRunner = new AppRunner<ConnectionCommand>()
+            .UseSpectreAnsiConsole(console)
+            .UseSpectreArgumentPrompter();
         var commandClassTypes = appRunner.GetCommandClassTypes();
         var serviceCollection = new ServiceCollection()
             .AddConnectionCommand();
@@ -50,14 +52,14 @@ public static class Program
             .UseTypoSuggestions()
             .UseDefaultsFromConfig()
             .UseNameCasing(Case.KebabCase)
-            .UseSpectreAnsiConsole()
-            .UseSpectreArgumentPrompter()
             .UseMicrosoftDependencyInjection(
                 serviceCollection.BuildServiceProvider(),
                 argumentModelResolveStrategy: ResolveStrategy.TryResolve,
                 commandClassResolveStrategy: ResolveStrategy.ResolveOrThrow
-            ).Run(args);
+            );
     }
+
+    public static int Main(string[] args) => GetAppRunner().Run(args);
 
     private static int ErrorHandler(CommandContext? context, Exception exception)
     {

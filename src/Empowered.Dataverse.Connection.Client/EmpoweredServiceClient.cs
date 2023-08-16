@@ -12,15 +12,11 @@ public class EmpoweredServiceClient : ServiceClient
     public EmpoweredServiceClient(ITokenProvider tokenProvider, Uri environmentUrl, ILogger<EmpoweredServiceClient> logger) 
         : base(environmentUrl, tokenProvider.GetToken, logger: logger)
     {
-        if (LastException != null)
+        if (!IsReady)
         {
-            throw new DataverseConnectionException($"Initialising Dataverse connection failed: {LastException.Message}", LastException);
+            throw new DataverseConnectionException($"Initialising Dataverse connection failed: {LastException?.Message}", LastException);
         }
 
-        if (!string.IsNullOrWhiteSpace(LastError))
-        {
-            throw new DataverseConnectionException($"Initialising Dataverse connection failed: {LastError}");
-        }
     }
     
     public EmpoweredServiceClient(ITokenProvider tokenProvider, IOptions<DataverseClientOptions> options, ILogger<EmpoweredServiceClient> logger)

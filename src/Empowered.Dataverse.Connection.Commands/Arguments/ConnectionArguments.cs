@@ -10,7 +10,7 @@ namespace Empowered.Dataverse.Connection.Commands.Arguments;
 public class ConnectionArguments : IArgumentModel, IDataverseConnection
 {
     [Option(Description = "Test the Dataverse connection after upsertion")]
-    public bool TestConnection { get; init; } = true;
+    public bool SkipConnectionTest { get; init; }
     
     [Option(Description = "The name to identify the connection")]
     [EnvVar(ConfigurationKeys.ConnectionName)]
