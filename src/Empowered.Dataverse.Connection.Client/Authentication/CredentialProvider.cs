@@ -24,7 +24,7 @@ public class CredentialProvider : ICredentialProvider
 
     public TokenCredential GetCredential()
     {
-        return _clientOptions.ConnectionType switch
+        return _clientOptions.Type switch
         {
             ConnectionType.UserPassword => new UsernamePasswordCredential(
                 _clientOptions.UserName,
@@ -48,7 +48,7 @@ public class CredentialProvider : ICredentialProvider
             {
                 TokenCachePersistenceOptions = new TokenCachePersistenceOptions
                 {
-                    Name = $"{_clientOptions.Name}_{_clientOptions.ConnectionType}"
+                    Name = $"{_clientOptions.Name}_{_clientOptions.Type}"
                 },
                 DisableAutomaticAuthentication = false,
                 DisableInstanceDiscovery = false,
@@ -67,7 +67,7 @@ public class CredentialProvider : ICredentialProvider
             ConnectionType.AzurePowershell => new AzurePowerShellCredential(),
             ConnectionType.VisualStudio => new VisualStudioCredential(),
             ConnectionType.VisualStudioCode => new VisualStudioCodeCredential(),
-            _ => throw new ArgumentOutOfRangeException($"Unknown connection type {_clientOptions.ConnectionType}")
+            _ => throw new ArgumentOutOfRangeException($"Unknown connection type {_clientOptions.Type}")
         };
     }
 

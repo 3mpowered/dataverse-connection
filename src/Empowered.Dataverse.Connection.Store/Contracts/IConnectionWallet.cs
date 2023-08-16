@@ -3,6 +3,6 @@
 public interface IConnectionWallet
 {
     public DateTime TimeStamp { get; }
-    IBaseConnection? Current { get; }
-    IEnumerable<IBaseConnection> Connections { get; }
+    IDataverseConnection? Current { get; }
+    IEnumerable<IDataverseConnection> Connections { get; }
 }

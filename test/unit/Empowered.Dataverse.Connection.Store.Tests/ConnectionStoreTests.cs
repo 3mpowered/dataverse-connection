@@ -15,7 +15,7 @@ public class ConnectionStoreTests
     {
         var nullLogger = NullLogger<ConnectionStore>.Instance;
         _walletFileService = A.Fake<IWalletFileService>();
-        _connectionStore = new ConnectionStore(_walletFileService, new ConnectionMapper(), nullLogger);
+        _connectionStore = new ConnectionStore(_walletFileService, nullLogger);
     }
 
     [Fact]
@@ -23,13 +23,13 @@ public class ConnectionStoreTests
     {
         IConnectionStore connectionStore = _connectionStore;
         const string connectionName = "connection";
-        var connection = new InteractiveConnection(
+        var connection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 connection
             }
@@ -52,13 +52,13 @@ public class ConnectionStoreTests
     {
         IConnectionStore connectionStore = _connectionStore;
         const string connectionName = "connection";
-        var connection = new InteractiveConnection(
+        var connection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 connection
             }
@@ -81,14 +81,14 @@ public class ConnectionStoreTests
     {
         IConnectionStore connectionStore = _connectionStore;
         const string connectionName = "connection";
-        var connection = new InteractiveConnection(
+        var connection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = connection,
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 connection
             }
@@ -111,14 +111,14 @@ public class ConnectionStoreTests
     {
         IConnectionStore connectionStore = _connectionStore;
         const string connectionName = "connection";
-        var connection = new InteractiveConnection(
+        var connection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = connection,
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 connection
             }
@@ -139,14 +139,14 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldGetActive()
     {
-        var activeConnection = new InteractiveConnection(
+        var activeConnection = DataverseConnection.InteractiveConnection(
             "active-connection",
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = activeConnection,
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 activeConnection
             }
@@ -159,7 +159,7 @@ public class ConnectionStoreTests
                 wallet = call.Arguments.First().As<ConnectionWallet>()
             );
 
-        var connection = _connectionStore.GetActive<IInteractiveConnection>();
+        var connection = _connectionStore.GetActive();
 
         connection.Should().NotBeNull();
         connection.Name.Should().Be(activeConnection.Name);
@@ -174,7 +174,7 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var action = () => _connectionStore.GetActive<BaseConnection>();
+        var action = () => _connectionStore.GetActive();
 
         action.Should().ThrowExactly<InvalidOperationException>()
             .Where(exception =>
@@ -188,13 +188,13 @@ public class ConnectionStoreTests
     {
         const string connectionName = "to-be-deleted";
 
-        var existingConnection = new InteractiveConnection("another-connection",
+        var existingConnection = DataverseConnection.InteractiveConnection("another-connection",
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             }
@@ -218,14 +218,14 @@ public class ConnectionStoreTests
     {
         const string connectionName = "to-be-deleted";
 
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             "another-connection",
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             }
@@ -247,14 +247,14 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldPurgeConnections()
     {
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             "another-connection",
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             }
@@ -278,14 +278,14 @@ public class ConnectionStoreTests
     {
         const string connectionName = "to-be-deleted";
 
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             }
@@ -310,14 +310,14 @@ public class ConnectionStoreTests
     {
         const string connectionName = "to-be-deleted";
 
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://tbd.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = existingConnection,
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             }
@@ -339,7 +339,7 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldNotUseCreatedConnection()
     {
-        var newConnection = new InteractiveConnection(
+        var newConnection = DataverseConnection.InteractiveConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -362,7 +362,7 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldUseCreatedConnection()
     {
-        var newConnection = new InteractiveConnection(
+        var newConnection = DataverseConnection.InteractiveConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -378,7 +378,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection, true);
 
         wallet.CurrentConnection.Should().NotBeNull();
-        wallet.CurrentConnection.Should().Match<InteractiveConnection>(connection =>
+        wallet.CurrentConnection.Should().Match<DataverseConnection>(connection =>
             connection.Name == newConnection.Name &&
             connection.EnvironmentUrl == newConnection.EnvironmentUrl
         );
@@ -387,9 +387,10 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldNotCreateUnknownConnection()
     {
-        var newConnection = new BaseConnection(
+        var newConnection = new DataverseConnection(
             "new-connection",
-            new Uri("https://new.crm4.dynamics.com")
+            new Uri("https://new.crm4.dynamics.com"),
+            ConnectionType.Unknown
         );
         var wallet = new ConnectionWallet();
 
@@ -413,7 +414,7 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldCreateNewDeviceCodeConnection()
     {
-        var newConnection = new DeviceCodeConnection(
+        var newConnection = DataverseConnection.DeviceCodeConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -429,7 +430,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IDeviceCodeConnection>()
+            .Where(x => x.Type == ConnectionType.DeviceCode)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -441,7 +442,7 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldCreateNewInteractiveConnection()
     {
-        var newConnection = new InteractiveConnection(
+        var newConnection = DataverseConnection.InteractiveConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -457,7 +458,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IInteractiveConnection>()
+            .Where(x => x.Type == ConnectionType.Interactive)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -469,7 +470,7 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldCreateNewAzureCliConnection()
     {
-        var newConnection = new AzureCliConnection(
+        var newConnection = DataverseConnection.AzureCliConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -485,7 +486,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IAzureCliConnection>()
+            .Where(x => x.Type == ConnectionType.AzureCli)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -493,11 +494,11 @@ public class ConnectionStoreTests
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl
             );
     }
-    
+
     [Fact]
     public void ShouldCreateNewAzureDefaultConnection()
     {
-        var newConnection = new AzureDefaultConnection(
+        var newConnection = DataverseConnection.AzureDefaultConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -513,7 +514,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IAzureDefaultConnection>()
+            .Where(x => x.Type == ConnectionType.AzureDefault)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -521,12 +522,12 @@ public class ConnectionStoreTests
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl
             );
     }
-    
-    
+
+
     [Fact]
     public void ShouldCreateNewAzureDeveloperCliConnection()
     {
-        var newConnection = new AzureDeveloperCliConnection(
+        var newConnection = DataverseConnection.AzureDeveloperCliConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -542,7 +543,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IAzureDeveloperCliConnection>()
+            .Where(x => x.Type == ConnectionType.AzureDeveloperCli)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -550,12 +551,12 @@ public class ConnectionStoreTests
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl
             );
     }
-    
-    
+
+
     [Fact]
     public void ShouldCreateNewAzurePowershellConnection()
     {
-        var newConnection = new AzurePowershellConnection(
+        var newConnection = DataverseConnection.AzurePowershellConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -571,7 +572,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IAzurePowershellConnection>()
+            .Where(x => x.Type == ConnectionType.AzurePowershell)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -579,12 +580,12 @@ public class ConnectionStoreTests
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl
             );
     }
-    
-    
+
+
     [Fact]
     public void ShouldCreateNewVisualStudioCodeConnection()
     {
-        var newConnection = new VisualStudioCodeConnection(
+        var newConnection = DataverseConnection.VisualStudioCodeConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -600,7 +601,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IVisualStudioCodeConnection>()
+            .Where(x => x.Type == ConnectionType.VisualStudioCode)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -609,11 +610,11 @@ public class ConnectionStoreTests
             );
     }
 
-    
+
     [Fact]
     public void ShouldCreateNewVisualStudioConnection()
     {
-        var newConnection = new VisualStudioConnection(
+        var newConnection = DataverseConnection.VisualStudioConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com")
         );
@@ -629,7 +630,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IVisualStudioConnection>()
+            .Where(x => x.Type == ConnectionType.VisualStudio)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -637,12 +638,12 @@ public class ConnectionStoreTests
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl
             );
     }
-    
-    
+
+
     [Fact]
     public void ShouldCreateNewManagedIdentityConnection()
     {
-        var newConnection = new ManagedIdentityConnection(
+        var newConnection = DataverseConnection.ManagedIdentityConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com"),
             Guid.NewGuid().ToString("D")
@@ -659,20 +660,20 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IManagedIdentityConnection>()
+            .Where(x => x.Type == ConnectionType.ManagedIdentity)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
                 connection.Type == newConnection.Type &&
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
-                connection.ClientId == newConnection.ClientId
+                connection.ApplicationId == newConnection.ApplicationId
             );
     }
-    
+
     [Fact]
     public void ShouldCreateNewUserPasswordConnection()
     {
-        var newConnection = new UserPasswordConnection(
+        var newConnection = DataverseConnection.UserPasswordConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com"),
             "me@example.com",
@@ -691,7 +692,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IUserPasswordConnection>()
+            .Where(x => x.Type == ConnectionType.UserPassword)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -706,7 +707,7 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldCreateNewClientSecretConnection()
     {
-        var newConnection = new ClientSecretConnection(
+        var newConnection = DataverseConnection.ClientSecretConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com"),
             Guid.NewGuid().ToString("D"),
@@ -725,7 +726,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IClientSecretConnection>()
+            .Where(x => x.Type == ConnectionType.ClientSecret)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -740,7 +741,7 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldCreateNewCertificateConnection()
     {
-        var newConnection = new ClientCertificateConnection(
+        var newConnection = DataverseConnection.ClientCertificateConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com"),
             Guid.NewGuid().ToString("D"),
@@ -760,7 +761,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IClientCertificateConnection>()
+            .Where(x => x.Type == ConnectionType.ClientCertificate)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -768,15 +769,15 @@ public class ConnectionStoreTests
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
                 connection.ApplicationId == newConnection.ApplicationId &&
                 connection.TenantId == newConnection.TenantId &&
-                connection.FilePath == newConnection.FilePath &&
-                connection.Password == newConnection.Password
+                connection.CertificateFilePath == newConnection.CertificateFilePath &&
+                connection.CertificatePassword == newConnection.CertificatePassword
             );
     }
 
     [Fact]
     public void ShouldDelegateDefaultUpsertMethodToGenericImplementation()
     {
-        var newConnection = new ClientCertificateConnection(
+        var newConnection = DataverseConnection.ClientCertificateConnection(
             "new-connection",
             new Uri("https://new.crm4.dynamics.com"),
             Guid.NewGuid().ToString("D"),
@@ -796,7 +797,7 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(newConnection);
 
         wallet.Connections
-            .OfType<IClientCertificateConnection>()
+            .Where(x => x.Type == ConnectionType.ClientCertificate)
             .Should()
             .ContainSingle(connection =>
                 connection.Name == newConnection.Name &&
@@ -804,8 +805,8 @@ public class ConnectionStoreTests
                 connection.EnvironmentUrl == newConnection.EnvironmentUrl &&
                 connection.ApplicationId == newConnection.ApplicationId &&
                 connection.TenantId == newConnection.TenantId &&
-                connection.FilePath == newConnection.FilePath &&
-                connection.Password == newConnection.Password
+                connection.CertificateFilePath == newConnection.CertificateFilePath &&
+                connection.CertificatePassword == newConnection.CertificatePassword
             );
     }
 
@@ -813,12 +814,12 @@ public class ConnectionStoreTests
     public void ShouldUpsertExistingConnection()
     {
         const string connectionName = "existing-connection";
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://new.crm4.dynamics.com")
         );
 
-        var upsertConnection = new ClientSecretConnection(
+        var upsertConnection = DataverseConnection.ClientSecretConnection(
             connectionName,
             new Uri("https://new-url.crm4.dynamics.com"),
             Guid.NewGuid().ToString("D"),
@@ -828,7 +829,7 @@ public class ConnectionStoreTests
 
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             },
@@ -845,15 +846,14 @@ public class ConnectionStoreTests
         _connectionStore.Upsert(upsertConnection);
 
         wallet.Current.Should().NotBeNull();
-        var connection = wallet.Current.As<IClientSecretConnection>();
-        connection.Name.Should().Be(upsertConnection.Name);
-        connection.EnvironmentUrl.Should().Be(upsertConnection.EnvironmentUrl);
-        connection.ApplicationId.Should().Be(upsertConnection.ApplicationId);
-        connection.TenantId.Should().Be(upsertConnection.TenantId);
-        connection.ClientSecret.Should().Be(upsertConnection.ClientSecret);
+        wallet.Current!.Name.Should().Be(upsertConnection.Name);
+        wallet.Current.EnvironmentUrl.Should().Be(upsertConnection.EnvironmentUrl);
+        wallet.Current.ApplicationId.Should().Be(upsertConnection.ApplicationId);
+        wallet.Current.TenantId.Should().Be(upsertConnection.TenantId);
+        wallet.Current.ClientSecret.Should().Be(upsertConnection.ClientSecret);
 
         wallet.Connections
-            .OfType<IClientSecretConnection>()
+            .Where(x => x.Type == ConnectionType.ClientSecret)
             .Should()
             .Satisfy(con =>
                 con.Name == upsertConnection.Name &&
@@ -867,18 +867,18 @@ public class ConnectionStoreTests
     [Fact]
     public void ShouldListExistingConnections()
     {
-        var currentConnection = new BaseConnection(
+        var currentConnection = DataverseConnection.InteractiveConnection(
             "current-connection",
             new Uri("https://my.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
             CurrentConnection = currentConnection,
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 currentConnection,
-                new("a", new Uri("https://a.crm4.dynamics.com")),
-                new("b", new Uri("https://b.crm4.dynamics.com"))
+                DataverseConnection.InteractiveConnection("a", new Uri("https://a.crm4.dynamics.com")),
+                DataverseConnection.InteractiveConnection("b", new Uri("https://b.crm4.dynamics.com"))
             }
         };
         A.CallTo(() => _walletFileService.ReadWallet())
@@ -903,13 +903,13 @@ public class ConnectionStoreTests
     public void ShouldGetExistingConnection()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://my-env.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             }
@@ -917,7 +917,7 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var connection = _connectionStore.Get<IInteractiveConnection>(connectionName);
+        var connection = _connectionStore.Get(connectionName);
 
         connection.Should().NotBeNull();
         connection.Name.Should().Be(connectionName);
@@ -928,13 +928,13 @@ public class ConnectionStoreTests
     public void ShouldThrowOnNonExistingConnection()
     {
         const string connectionName = "my-connection";
-        var anotherConnection = new InteractiveConnection(
+        var anotherConnection = DataverseConnection.InteractiveConnection(
             "another-connection",
             new Uri("https://my-env.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 anotherConnection
             }
@@ -942,7 +942,7 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var action = () => _connectionStore.Get<IInteractiveConnection>(connectionName);
+        var action = () => _connectionStore.Get(connectionName);
 
         action.Should()
             .ThrowExactly<ArgumentException>()
@@ -957,7 +957,7 @@ public class ConnectionStoreTests
     {
         const string connectionName = "   ";
 
-        IInteractiveConnection? connection = null;
+        IDataverseConnection? connection = null;
         var action = () => _connectionStore.TryGet(connectionName, out connection);
 
         action.Should()
@@ -971,13 +971,13 @@ public class ConnectionStoreTests
     public void ShouldGetExistingConnectionWithTry()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://my-env.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             }
@@ -985,7 +985,7 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var isExistingConnection = _connectionStore.TryGet(connectionName, out IInteractiveConnection? connection);
+        var isExistingConnection = _connectionStore.TryGet(connectionName, out var connection);
 
         isExistingConnection.Should().BeTrue();
         connection.Should().NotBeNull();
@@ -997,13 +997,13 @@ public class ConnectionStoreTests
     public void ShouldNotGetExistingConnectionWithTry()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             "another-connection",
             new Uri("https://my-env.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             }
@@ -1011,7 +1011,7 @@ public class ConnectionStoreTests
         A.CallTo(() => _walletFileService.ReadWallet())
             .Returns(wallet);
 
-        var isExistingConnection = _connectionStore.TryGet(connectionName, out IInteractiveConnection? connection);
+        var isExistingConnection = _connectionStore.TryGet(connectionName, out var connection);
 
         isExistingConnection.Should().BeFalse();
         connection.Should().BeNull();
@@ -1021,13 +1021,13 @@ public class ConnectionStoreTests
     public void ShouldUseExistingConnection()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             connectionName,
             new Uri("https://my.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             },
@@ -1044,7 +1044,7 @@ public class ConnectionStoreTests
         _connectionStore.Use(connectionName);
 
         wallet.Current.Should().NotBeNull();
-        var baseConnection = wallet.Current.As<IInteractiveConnection>();
+        var baseConnection = wallet.Current.As<DataverseConnection>();
         baseConnection.Name.Should().Be(existingConnection.Name);
         baseConnection.EnvironmentUrl.Should().Be(existingConnection.EnvironmentUrl);
     }
@@ -1053,13 +1053,13 @@ public class ConnectionStoreTests
     public void ShouldThrowOnUsingNonExistingConnection()
     {
         const string connectionName = "my-connection";
-        var existingConnection = new InteractiveConnection(
+        var existingConnection = DataverseConnection.InteractiveConnection(
             "another-connection",
             new Uri("https://my.crm4.dynamics.com")
         );
         var wallet = new ConnectionWallet
         {
-            ExistingConnections = new HashSet<BaseConnection>
+            ExistingConnections = new HashSet<DataverseConnection>
             {
                 existingConnection
             },

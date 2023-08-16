@@ -17,7 +17,6 @@ public static class ServiceCollectionExtensions
         serviceCollection
             .AddSingleton<IConnectionStore, ConnectionStore>(serviceProvider => new ConnectionStore(
                     serviceProvider.GetRequiredService<IWalletFileService>(),
-                    serviceProvider.GetRequiredService<IConnectionMapper>(),
                     serviceProvider.GetRequiredService<ILogger<ConnectionStore>>()
                 )
             );
@@ -40,9 +39,7 @@ public static class ServiceCollectionExtensions
                 serviceProvider.GetRequiredService<ILogger<WalletFileService>>()
             )
         );
-
-        serviceCollection.TryAddTransient<IConnectionMapper, ConnectionMapper>();
-
+        
         serviceCollection
             .AddLogging()
             .AddDataProtection()

@@ -2,7 +2,6 @@ using CommandDotNet;
 using Empowered.Dataverse.Connection.Client.Contracts;
 using Empowered.Dataverse.Connection.Commands.Arguments;
 using Empowered.Dataverse.Connection.Commands.Constants;
-using Empowered.Dataverse.Connection.Commands.Services;
 using Empowered.Dataverse.Connection.Store.Contracts;
 using Empowered.SpectreConsole.Extensions;
 using Microsoft.Crm.Sdk.Messages;
@@ -18,19 +17,16 @@ public class ConnectionCommand
 {
     private readonly IAnsiConsole _console;
     private readonly IConnectionStore _connectionStore;
-    private readonly IArgumentConnectionMapper _argumentConnectionMapper;
     private readonly IDataverseClientFactory _dataverseClientFactory;
 
     public ConnectionCommand(
-        IAnsiConsole console, 
-        IConnectionStore connectionStore, 
-        IArgumentConnectionMapper argumentConnectionMapper,
+        IAnsiConsole console,
+        IConnectionStore connectionStore,
         IDataverseClientFactory dataverseClientFactory
-        )
+    )
     {
         _console = console;
         _connectionStore = connectionStore;
-        _argumentConnectionMapper = argumentConnectionMapper;
         _dataverseClientFactory = dataverseClientFactory;
     }
 
@@ -77,25 +73,31 @@ public class ConnectionCommand
         return await List();
     }
 
-    public async Task<int> Remove(ConnectionNameArguments arguments)
+    public async Task<int> Delete(
+        [Option(Description = "The name of the connection to delete")]
+        string name
+    )
     {
-        _console.Info(Info.Deleting(arguments.Name));
-        _connectionStore.Delete(arguments.Name);
-        _console.Success(Success.Deleted(arguments.Name));
+        _console.Info(Info.Deleting(name));
+        _connectionStore.Delete(name);
+        _console.Success(Success.Deleted(name));
         return await List();
     }
 
-    public async Task<int> Use(ConnectionNameArguments arguments)
+    public async Task<int> Use(
+        [Option(Description = "The name of the connection to use")]
+        string name
+    )
     {
-        _console.Info(Info.Using(arguments.Name));
-        _connectionStore.Use(arguments.Name);
-        _console.Success(Success.Used(arguments.Name));
+        _console.Info(Info.Using(name));
+        _connectionStore.Use(name);
+        _console.Success(Success.Used(name));
         return await List();
     }
 
-    public async Task<int> Upsert(UpsertConnectionArguments arguments)
+    public async Task<int> Upsert(ConnectionArguments arguments)
     {
-        var connectionName = arguments.ConnectionNameArguments.Name;
+        var connectionName = arguments.Name;
         _console
             .Status()
             .AutoRefresh(true)
@@ -105,7 +107,7 @@ public class ConnectionCommand
             {
                 statustContext.Status("Upsert Connection");
                 _console.Info(Info.Upserting(connectionName));
-                var connection = _argumentConnectionMapper.ToConnection(arguments);
+                var connection = arguments.Clone();
                 _connectionStore.Upsert(connection, true);
 
                 if (arguments.TestConnection)
@@ -113,7 +115,7 @@ public class ConnectionCommand
                     statustContext.Status("Test Connection");
                     _console.Info(Info.Testing(connectionName));
                     var userName = WhoAmI(connectionName);
-                    var environmentUrl = arguments.ConnectionArguments.Url.ToString();
+                    var environmentUrl = arguments.EnvironmentUrl.ToString();
                     _console.Success(Success.Tested(environmentUrl, userName));
                 }
 

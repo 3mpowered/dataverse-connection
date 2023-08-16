@@ -9,9 +9,11 @@ public class ConnectionTests
     public void ShouldReturnTrueForConnectionsWithSameNameOnEqualityComparison()
     {
         const string name = "Test";
-        var connection1 = new BaseConnection(name, new Uri("https://test.crm4.dynamics.com")).As<IBaseConnection>();
+        var connection1 = new DataverseConnection(name, new Uri("https://test.crm4.dynamics.com"), ConnectionType.Interactive)
+            .As<IDataverseConnection>();
 
-        var connection2 = new BaseConnection(name, new Uri("https://test.crm12.dynamics.com")).As<IBaseConnection>();
+        var connection2 = new DataverseConnection(name, new Uri("https://test.crm12.dynamics.com"), ConnectionType.Interactive)
+            .As<IDataverseConnection>();
 
         connection1.Equals(connection2).Should().BeTrue();
     }
@@ -20,18 +22,20 @@ public class ConnectionTests
     public void ShouldReturnFalseForEqualityComparisonOnNull()
     {
         const string name = "Test";
-        var connection1 = new BaseConnection(name, new Uri("https://test.crm4.dynamics.com")).As<IBaseConnection>();
+        var connection1 = new DataverseConnection(name, new Uri("https://test.crm4.dynamics.com"), ConnectionType.Interactive)
+            .As<IDataverseConnection>();
 
-        IBaseConnection? connection2 = null;
+        IDataverseConnection? connection2 = null;
 
         connection1.Equals(connection2).Should().BeFalse();
     }
-    
+
     [Fact]
     public void ShouldReturnTrueForEqualityComparisonOnSameReference()
     {
         const string name = "Test";
-        var connection1 = new BaseConnection(name, new Uri("https://test.crm4.dynamics.com")).As<IBaseConnection>();
+        var connection1 = new DataverseConnection(name, new Uri("https://test.crm4.dynamics.com"), ConnectionType.Interactive)
+            .As<IDataverseConnection>();
 
         connection1.Equals(connection1).Should().BeTrue();
     }

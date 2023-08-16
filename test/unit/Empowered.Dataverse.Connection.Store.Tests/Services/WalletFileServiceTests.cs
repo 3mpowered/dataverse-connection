@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Security.Cryptography;
 using Empowered.Dataverse.Connection.Store.Constants;
+using Empowered.Dataverse.Connection.Store.Contracts;
 using Empowered.Dataverse.Connection.Store.Model;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -74,13 +75,12 @@ public class WalletFileServiceTests : IDisposable
     [Fact]
     public void ShouldWriteAndReadWallet()
     {
-        var connection = new UserPasswordConnection(
-            "Test",
-            new Uri("https://test.crm4.dynamics.com"),
-            "test@test.com",
-            "12345",
-            Guid.NewGuid().ToString("D")
-        );
+        var connection = new DataverseConnection("Test", new Uri("https://test.crm4.dynamics.com"), ConnectionType.UserPassword) 
+        {
+            UserName = "test@test.com",
+            Password = "12345",
+            TenantId = Guid.NewGuid().ToString("D")
+        };
         var wallet = new ConnectionWallet
         {
             CurrentConnection = connection,

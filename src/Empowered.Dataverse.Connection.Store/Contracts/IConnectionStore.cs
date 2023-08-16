@@ -10,7 +10,7 @@ public interface IConnectionStore
     /// </summary>
     /// <returns></returns>
     IConnectionWallet List();
-
+    
     /// <summary>
     /// This method returns a connection by a given name.
     /// </summary>
@@ -18,44 +18,21 @@ public interface IConnectionStore
     /// <exception cref="ArgumentException">If the connection with the given name is not found.</exception>
     /// <exception cref="ArgumentNullException">If the given name is null or whitespace.</exception>
     /// <returns></returns>
-    IBaseConnection Get(string name) => Get<IBaseConnection>(name);
-
-    /// <summary>
-    /// This method returns a connection by a given name.
-    /// </summary>
-    /// <param name="name">The name of the connection to retrieve</param>
-    /// <exception cref="ArgumentException">If the connection with the given name is not found.</exception>
-    /// <exception cref="ArgumentNullException">If the given name is null or whitespace.</exception>
-    /// <returns></returns>
-    TConnection Get<TConnection>(string name) where TConnection : IBaseConnection;
+    IDataverseConnection Get(string name);
     
     /// <summary>
     /// This method returns the currently active connection.
     /// <exception cref="InvalidOperationException">If no active connection exists.</exception>
     /// </summary>
     /// <returns></returns>
-    IBaseConnection GetActive() => GetActive<IBaseConnection>();
-    
-    /// <summary>
-    /// This method returns the currently active connection.
-    /// <exception cref="InvalidOperationException">If no active connection exists.</exception>
-    /// </summary>
-    /// <returns></returns>
-    TConnection GetActive<TConnection>() where TConnection : IBaseConnection;
-
-    /// <summary>
-    /// This method tries to get the active connection. Returns true if active connection is found, otherwise returns false.
-    /// </summary>
-    /// <param name="connection">The active connection if result is true, otherwise null.</param>
-    /// <returns></returns>
-    bool TryGetActive(out IBaseConnection? connection) => TryGetActive<IBaseConnection>(out connection);
+    IDataverseConnection GetActive();
     
     /// <summary>
     /// This method tries to get the active connection. Returns true if active connection is found, otherwise returns false.
     /// </summary>
     /// <param name="connection">The active connection if result is true, otherwise null.</param>
     /// <returns></returns>
-    bool TryGetActive<TConnection>(out TConnection? connection) where TConnection : IBaseConnection;
+    bool TryGetActive(out IDataverseConnection? connection);
     
     /// <summary>
     /// This method returns true if a connection by the given name exists. If the connection doesn't exist false is returned.
@@ -64,16 +41,7 @@ public interface IConnectionStore
     /// <param name="connection">if the connection exists contains the connection else null</param>
     /// <exception cref="ArgumentNullException">If the given name is null or whitespace</exception>
     /// <returns></returns>
-    bool TryGet(string name, out IBaseConnection? connection) => TryGet<IBaseConnection>(name, out connection);
-
-    /// <summary>
-    /// This method returns true if a connection by the given name exists. If the connection doesn't exist false is returned.
-    /// </summary>
-    /// <param name="name">The name of the given connection</param>
-    /// <param name="connection">if the connection exists contains the connection else null</param>
-    /// <exception cref="ArgumentNullException">If the given name is null or whitespace</exception>
-    /// <returns></returns>
-    bool TryGet<TConnection>(string name, out TConnection? connection) where TConnection : IBaseConnection;
+    bool TryGet(string name, out IDataverseConnection? connection);
     
     /// <summary>
     /// This method inserts or updates a given connection in the store.
@@ -83,7 +51,7 @@ public interface IConnectionStore
     /// <param name="connection">The non-sensitive connection data including the connection name</param>
     /// <param name="useConnection">Set to true if the upserted connection should be used as current connection. Defaults to false</param>
     /// <exception cref="ArgumentException">If a connection is invalid.</exception>
-    void Upsert<TConnection>(TConnection connection, bool useConnection = false) where TConnection : IBaseConnection;
+    void Upsert(IDataverseConnection connection, bool useConnection = false);
 
     /// <summary>
     /// Deletes a connection by a given name.
