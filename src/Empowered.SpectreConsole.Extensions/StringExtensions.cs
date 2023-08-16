@@ -1,4 +1,7 @@
-﻿namespace Empowered.SpectreConsole.Extensions;
+﻿using Spectre.Console;
+using Spectre.Console.Testing;
+
+namespace Empowered.SpectreConsole.Extensions;
 
 public static class StringExtensions
 {
@@ -12,4 +15,10 @@ public static class StringExtensions
     public static string RapidBlink(this string text) => $"[rapidblink]{text}[/]";
     public static string Strikethrough(this string text) => $"[strikethrough]{text}[/]";
     public static string Link(this string text) => $"[link]{text}[/]";
+    public static string ApplyMarkup(this string text)
+    {
+        var recorder = new Recorder(new TestConsole());
+        recorder.Markup(text);
+        return recorder.ExportText();
+    }
 }

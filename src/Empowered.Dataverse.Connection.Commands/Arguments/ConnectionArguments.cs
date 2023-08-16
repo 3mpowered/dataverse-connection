@@ -1,8 +1,10 @@
 using CommandDotNet;
-using Empowered.Dataverse.Connection.Tool.Constants;
+using Empowered.Dataverse.Connection.Commands.Constants;
+using Empowered.Dataverse.Connection.Store.Contracts;
+
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-namespace Empowered.Dataverse.Connection.Tool.Arguments;
+namespace Empowered.Dataverse.Connection.Commands.Arguments;
 
 public class ConnectionArguments : IArgumentModel
 {
@@ -12,6 +14,9 @@ public class ConnectionArguments : IArgumentModel
     [Option(Description = "A flag to interactively authenticate via device code against the Dataverse environment")]
     public bool DeviceCode { get; init; }
 
+    [Option(Description = "Specify the connection type to authenticate against the Dataverse environment")]
+    public ConnectionType ConnectionType { get; init; }
+    
     [Option(Description = "The URL of the Dataverse environment")]
     [EnvVar(ConfigurationKeys.EnvironmentUrl)]
     public required Uri Url { get; init; }

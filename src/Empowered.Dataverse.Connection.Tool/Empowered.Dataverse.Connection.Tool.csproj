@@ -8,9 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Empowered.Dataverse.Connection.Client\Empowered.Dataverse.Connection.Client.csproj" />
-      <ProjectReference Include="..\Empowered.Dataverse.Connection.Store\Empowered.Dataverse.Connection.Store.csproj" />
-      <ProjectReference Include="..\Empowered.SpectreConsole.Extensions\Empowered.SpectreConsole.Extensions.csproj" />
+      <ProjectReference Include="..\Empowered.Dataverse.Connection.Commands\Empowered.Dataverse.Connection.Commands.csproj" />
     </ItemGroup>
 
     <ItemGroup>

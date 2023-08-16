@@ -1,26 +1,36 @@
 using CommandDotNet;
 using Empowered.Dataverse.Connection.Client.Contracts;
+using Empowered.Dataverse.Connection.Commands.Arguments;
+using Empowered.Dataverse.Connection.Commands.Constants;
+using Empowered.Dataverse.Connection.Commands.Services;
 using Empowered.Dataverse.Connection.Store.Contracts;
-using Empowered.Dataverse.Connection.Tool.Arguments;
 using Empowered.SpectreConsole.Extensions;
 using Microsoft.Crm.Sdk.Messages;
 using Microsoft.PowerPlatform.Dataverse.Client.Utils;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Spectre.Console;
+using static Empowered.Dataverse.Connection.Commands.Constants.Messages;
 
-namespace Empowered.Dataverse.Connection.Tool.Commands;
+namespace Empowered.Dataverse.Connection.Commands;
 
 public class ConnectionCommand
 {
     private readonly IAnsiConsole _console;
     private readonly IConnectionStore _connectionStore;
+    private readonly IArgumentConnectionMapper _argumentConnectionMapper;
     private readonly IDataverseClientFactory _dataverseClientFactory;
 
-    public ConnectionCommand(IAnsiConsole console, IConnectionStore connectionStore, IDataverseClientFactory dataverseClientFactory)
+    public ConnectionCommand(
+        IAnsiConsole console, 
+        IConnectionStore connectionStore, 
+        IArgumentConnectionMapper argumentConnectionMapper,
+        IDataverseClientFactory dataverseClientFactory
+        )
     {
         _console = console;
         _connectionStore = connectionStore;
+        _argumentConnectionMapper = argumentConnectionMapper;
         _dataverseClientFactory = dataverseClientFactory;
     }
 
@@ -33,16 +43,19 @@ public class ConnectionCommand
             Border = TableBorder.None,
         };
 
-        table.AddColumn(new TableColumn("Active").Centered());
-        table.AddColumn(new TableColumn("Connection Name"));
-        table.AddColumn(new TableColumn("Connection Type"));
-        table.AddColumn(new TableColumn("Environment URL"));
+        table.AddColumn(new TableColumn(ConnectionTable.Headers.Active).Centered());
+        table.AddColumn(new TableColumn(ConnectionTable.Headers.ConnectionName));
+        table.AddColumn(new TableColumn(ConnectionTable.Headers.ConnectionType));
+        table.AddColumn(new TableColumn(ConnectionTable.Headers.EnvironmentUrl));
 
         var currentConnection = wallet.Current;
 
         foreach (var connection in wallet.Connections)
         {
-            var isActiveConnection = connection.Name == currentConnection?.Name ? "x" : string.Empty;
+            var isActiveConnection = connection.Name == currentConnection?.Name
+                ? ConnectionTable.Values.ActiveFlag
+                : string.Empty;
+
             table.AddRow(
                 isActiveConnection,
                 connection.Name,
@@ -58,25 +71,25 @@ public class ConnectionCommand
 
     public async Task<int> Purge()
     {
-        _console.Info("Purging all connections ...");
+        _console.Info(Info.Purging);
         _connectionStore.Purge();
-        _console.Success("Connections were successfully purged");
+        _console.Success(Success.Purged);
         return await List();
     }
 
-    public async Task<int> Remove(ConnectionNameArguments connectionName)
+    public async Task<int> Remove(ConnectionNameArguments arguments)
     {
-        _console.Info($"Removing connection {connectionName.Name.Italic()} ...");
-        _connectionStore.Delete(connectionName.Name);
-        _console.Success($"Connection {connectionName.Name.Italic()} was successfully deleted");
+        _console.Info(Info.Deleting(arguments.Name));
+        _connectionStore.Delete(arguments.Name);
+        _console.Success(Success.Deleted(arguments.Name));
         return await List();
     }
 
-    public async Task<int> Use(ConnectionNameArguments connectionName)
+    public async Task<int> Use(ConnectionNameArguments arguments)
     {
-        _console.Info($"Using connection {connectionName.Name.Italic()} ...");
-        _connectionStore.Use(connectionName.Name);
-        _console.Success($"Connection {connectionName.Name.Italic()} is successfully used");
+        _console.Info(Info.Using(arguments.Name));
+        _connectionStore.Use(arguments.Name);
+        _console.Success(Success.Used(arguments.Name));
         return await List();
     }
 
@@ -88,23 +101,23 @@ public class ConnectionCommand
             .AutoRefresh(true)
             .Spinner(Spinner.Known.Pong)
             .SpinnerStyle(Style.Parse("green"))
-            
             .Start($"Upserting connection {connectionName.Italic()} ...", statustContext =>
             {
                 statustContext.Status("Upsert Connection");
-                _console.Info($"Upserting connection {connectionName.Italic()} ...");
-                var connection = arguments.ToConnection();
+                _console.Info(Info.Upserting(connectionName));
+                var connection = _argumentConnectionMapper.ToConnection(arguments);
                 _connectionStore.Upsert(connection, true);
 
                 if (arguments.TestConnection)
                 {
                     statustContext.Status("Test Connection");
-                    _console.Info($"Testing connection {connectionName.Italic()} ...");
+                    _console.Info(Info.Testing(connectionName));
                     var userName = WhoAmI(connectionName);
-                    _console.Success($"Successfully connected to {arguments.ConnectionArguments.Url.ToString().Link()} as user {userName.Italic()}");
+                    var environmentUrl = arguments.ConnectionArguments.Url.ToString();
+                    _console.Success(Success.Tested(environmentUrl, userName));
                 }
 
-                _console.Success($"Connection {connectionName.Italic()} was successfully upserted");
+                _console.Success(Success.Upserted(connectionName));
             });
         return await List();
     }
@@ -120,8 +133,7 @@ public class ConnectionCommand
         }
         catch (Exception exception)
         {
-            throw new DataverseConnectionException(
-                $"Connection test for connection {connectionName} failed with the following error message: {exception.Message}", exception);
+            throw new DataverseConnectionException(ErrorMessages.ConnectionTestFailed(connectionName, exception.Message), exception);
         }
     }
 }

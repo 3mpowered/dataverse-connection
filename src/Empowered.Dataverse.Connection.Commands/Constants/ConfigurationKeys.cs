@@ -1,4 +1,4 @@
-namespace Empowered.Dataverse.Connection.Tool.Constants;
+namespace Empowered.Dataverse.Connection.Commands.Constants;
 
 public static class ConfigurationKeys
 {

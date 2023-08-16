@@ -1,7 +1,7 @@
 using CommandDotNet;
-using Empowered.Dataverse.Connection.Tool.Constants;
+using Empowered.Dataverse.Connection.Commands.Constants;
 
-namespace Empowered.Dataverse.Connection.Tool.Arguments;
+namespace Empowered.Dataverse.Connection.Commands.Arguments;
 
 public class ConnectionNameArguments : IArgumentModel
 {

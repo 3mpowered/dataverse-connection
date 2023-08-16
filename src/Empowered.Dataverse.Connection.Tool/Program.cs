@@ -6,12 +6,12 @@ using CommandDotNet.Execution;
 using CommandDotNet.IoC.MicrosoftDependencyInjection;
 using CommandDotNet.NameCasing;
 using CommandDotNet.Spectre;
-using Empowered.Dataverse.Connection.Client.Extensions;
-using Empowered.Dataverse.Connection.Store.Extensions;
-using Empowered.Dataverse.Connection.Tool.Commands;
+using Empowered.Dataverse.Connection.Commands;
+using Empowered.Dataverse.Connection.Commands.Extensions;
 using Empowered.SpectreConsole.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Spectre.Console;
 
 namespace Empowered.Dataverse.Connection.Tool;
@@ -23,13 +23,12 @@ public static class Program
         var appRunner = new AppRunner<ConnectionCommand>();
         var commandClassTypes = appRunner.GetCommandClassTypes();
         var serviceCollection = new ServiceCollection()
-            .AddSingleton<IAnsiConsole>(_ => AnsiConsole.Console)
-            .AddConnectionStore()
-            .AddDataverseClientFactory();
+            .AddConnectionCommand()
+            .AddSingleton<IAnsiConsole>(_ => AnsiConsole.Console);
 
         foreach (var commandClassType in commandClassTypes)
         {
-            serviceCollection.AddScoped(commandClassType.type);
+            serviceCollection.TryAddScoped(commandClassType.type);
         }
 
         var configuration = new ConfigurationBuilder()
