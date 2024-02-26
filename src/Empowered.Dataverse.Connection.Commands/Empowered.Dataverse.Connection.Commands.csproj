@@ -1,13 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <LangVersion>11</LangVersion>
-    </PropertyGroup>
+
 
     <ItemGroup>
-      <PackageReference Include="CommandDotNet" Version="7.0.2" />
+      <PackageReference Include="CommandDotNet" Version="7.0.3" />
       <PackageReference Include="CommandDotNet.Spectre" Version="3.0.2" />
     </ItemGroup>
 
