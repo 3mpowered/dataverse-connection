@@ -17,12 +17,12 @@
       <None Update="local.settings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Remove="Empowered.Dataverse.Connection.Tool.Integration.Tests.csproj.DotSettings" />
+        <None Update="local/certificate.pfx">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="local\3mpowered-certificate.cer" />
-      <None Remove="local\3mpowered-certificate.pfx" />
     </ItemGroup>
 
 </Project>
