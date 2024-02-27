@@ -236,7 +236,7 @@ ClientBin/
 *.dbmdl
 *.dbproj.schemaview
 *.jfm
-*.pfx
+#*.pfx
 *.publishsettings
 orleans.codegen.cs
 
@@ -397,9 +397,3 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 .idea
-
-# settings
-local.settings.json
-
-# resources
-local/

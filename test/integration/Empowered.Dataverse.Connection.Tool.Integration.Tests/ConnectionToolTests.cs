@@ -150,7 +150,7 @@ public class ConnectionToolTests : IDisposable
         var environmentUrl = _configuration.GetRequiredValue<string>(ConfigurationKeys.EnvironmentUrl);
         var tenantId = _configuration.GetRequiredValue<string>(ConfigurationKeys.TenantId);
         var applicationId = _configuration.GetRequiredValue<string>(ConfigurationKeys.ApplicationId);
-        var certFilePath = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.FullName, "local", "3mpowered-certificate.pfx");
+        var certFilePath = Path.Combine(new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.FullName, "local", "certificate.pfx");
         var password = _configuration.GetRequiredValue<string>(ConfigurationKeys.CertificatePassword);
         Program.GetAppRunner(_ansiTestConsole)
             .Verify(new Scenario

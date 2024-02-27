@@ -1,0 +1,9 @@
+﻿{
+  "EnvironmentUrl": "https://<yourenv>.crmx.dynamics.com/",
+  "TenantId": "<your-tenant-id>",
+  "ApplicationId": "<your-application-id>",
+  "ClientSecret": "<your-client-secret>",
+  "CertificatePassword": "<your-certificate-password>",
+  "UserName": "<your-username>",
+  "Password": "<your-password>"
+}
