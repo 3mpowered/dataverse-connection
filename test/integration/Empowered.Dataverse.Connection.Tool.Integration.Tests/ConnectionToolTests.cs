@@ -61,8 +61,8 @@ public class ConnectionToolTests : IDisposable
             {
                 When =
                 {
-                    ArgsArray = new[]
-                    {
+                    ArgsArray =
+                    [
                         "upsert",
                         "--name",
                         connectionName,
@@ -70,8 +70,8 @@ public class ConnectionToolTests : IDisposable
                         environmentUrl,
                         "--type",
                         ConnectionType.Interactive.ToString(),
-                        "--skip-connection-test",
-                    }
+                        "--skip-connection-test"
+                    ]
                 }
             });
     }
@@ -89,8 +89,8 @@ public class ConnectionToolTests : IDisposable
             {
                 When =
                 {
-                    ArgsArray = new[]
-                    {
+                    ArgsArray =
+                    [
                         "upsert",
                         "--name",
                         connectionName,
@@ -104,12 +104,12 @@ public class ConnectionToolTests : IDisposable
                         applicationId,
                         "--client-secret",
                         clientSecret
-                    }
+                    ]
                 }
             });
     }
 
-    [Fact]
+    [Fact(Skip = "Currently missing a test user without mfa")]
     public void ShouldAddAndTestUserPasswordConnection()
     {
         const string connectionName = "connection";

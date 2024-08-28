@@ -13,26 +13,13 @@ using static Empowered.Dataverse.Connection.Commands.Constants.Messages;
 
 namespace Empowered.Dataverse.Connection.Commands;
 
-public class ConnectionCommand
+public class ConnectionCommand(IAnsiConsole console,
+    IConnectionStore connectionStore,
+    IDataverseClientFactory dataverseClientFactory)
 {
-    private readonly IAnsiConsole _console;
-    private readonly IConnectionStore _connectionStore;
-    private readonly IDataverseClientFactory _dataverseClientFactory;
-
-    public ConnectionCommand(
-        IAnsiConsole console,
-        IConnectionStore connectionStore,
-        IDataverseClientFactory dataverseClientFactory
-    )
-    {
-        _console = console;
-        _connectionStore = connectionStore;
-        _dataverseClientFactory = dataverseClientFactory;
-    }
-
     public async Task<int> List()
     {
-        var wallet = _connectionStore.List();
+        var wallet = connectionStore.List();
 
         var table = new Table
         {
@@ -60,16 +47,16 @@ public class ConnectionCommand
             );
         }
 
-        _console.Write(table);
+        console.Write(table);
 
         return await ExitCodes.Success;
     }
 
     public async Task<int> Purge()
     {
-        _console.Info(Info.Purging);
-        _connectionStore.Purge();
-        _console.Success(Success.Purged);
+        console.Info(Info.Purging);
+        connectionStore.Purge();
+        console.Success(Success.Purged);
         return await List();
     }
 
@@ -78,9 +65,9 @@ public class ConnectionCommand
         string name
     )
     {
-        _console.Info(Info.Deleting(name));
-        _connectionStore.Delete(name);
-        _console.Success(Success.Deleted(name));
+        console.Info(Info.Deleting(name));
+        connectionStore.Delete(name);
+        console.Success(Success.Deleted(name));
         return await List();
     }
 
@@ -89,37 +76,37 @@ public class ConnectionCommand
         string name
     )
     {
-        _console.Info(Info.Using(name));
-        _connectionStore.Use(name);
-        _console.Success(Success.Used(name));
+        console.Info(Info.Using(name));
+        connectionStore.Use(name);
+        console.Success(Success.Used(name));
         return await List();
     }
 
     public async Task<int> Upsert(ConnectionArguments arguments)
     {
         var connectionName = arguments.Name;
-        _console
+        console
             .Status()
             .AutoRefresh(true)
             .Spinner(Spinner.Known.Pong)
             .SpinnerStyle(Style.Parse("green"))
-            .Start($"Upserting connection {connectionName.Italic()} ...", statustContext =>
+            .Start($"Upserting connection {connectionName.Italic()} ...", statusContext =>
             {
-                statustContext.Status("Upsert Connection");
-                _console.Info(Info.Upserting(connectionName));
+                statusContext.Status("Upsert Connection");
+                console.Info(Info.Upserting(connectionName));
                 var connection = arguments.Clone();
-                _connectionStore.Upsert(connection, true);
+                connectionStore.Upsert(connection, true);
 
                 if (arguments.SkipConnectionTest == false)
                 {
-                    statustContext.Status("Test Connection");
-                    _console.Info(Info.Testing(connectionName));
+                    statusContext.Status("Test Connection");
+                    console.Info(Info.Testing(connectionName));
                     var userName = WhoAmI(connectionName);
                     var environmentUrl = arguments.EnvironmentUrl.ToString();
-                    _console.Success(Success.Tested(environmentUrl, userName));
+                    console.Success(Success.Tested(environmentUrl, userName));
                 }
 
-                _console.Success(Success.Upserted(connectionName));
+                console.Success(Success.Upserted(connectionName));
             });
         return await List();
     }
@@ -128,14 +115,15 @@ public class ConnectionCommand
     {
         try
         {
-            var organizationService = _dataverseClientFactory.Get<IOrganizationService>(connectionName);
+            var organizationService = dataverseClientFactory.Get<IOrganizationService>(connectionName);
             var whoAmIResponse = (WhoAmIResponse)organizationService.Execute(new WhoAmIRequest());
             var user = organizationService.Retrieve("systemuser", whoAmIResponse.UserId, new ColumnSet("fullname"));
             return user.GetAttributeValue<string>("fullname");
         }
         catch (Exception exception)
         {
-            throw new DataverseConnectionException(ErrorMessages.ConnectionTestFailed(connectionName, exception.Message), exception);
+            throw new DataverseConnectionException(
+                ErrorMessages.ConnectionTestFailed(connectionName, exception.Message), exception);
         }
     }
 }
