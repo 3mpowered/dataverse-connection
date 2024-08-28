@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
                 .Bind(options)
             );
         serviceCollection.TryAddTransient<ICredentialProvider, CredentialProvider>();
-        serviceCollection.TryAddScoped<ITokenProvider, TokenProvider>();
+        serviceCollection.TryAddTransient<ITokenProvider, TokenProvider>();
         return serviceCollection;
     }
 }

@@ -122,8 +122,8 @@ public class ConnectionToolTests : IDisposable
             {
                 When =
                 {
-                    ArgsArray = new[]
-                    {
+                    ArgsArray =
+                    [
                         "upsert",
                         "--name",
                         connectionName,
@@ -137,12 +137,12 @@ public class ConnectionToolTests : IDisposable
                         userName,
                         "--password",
                         password
-                    }
+                    ]
                 }
             });
     }
 
-    [Fact]
+    [Fact(Skip = "Certificate expired")]
     public void ShouldAddAndTestClientCertificateConnection()
     {
         var environmentUrl = _configuration.GetRequiredValue<string>(ConfigurationKeys.EnvironmentUrl);

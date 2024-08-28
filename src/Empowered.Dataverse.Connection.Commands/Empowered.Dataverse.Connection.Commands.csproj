@@ -3,7 +3,7 @@
 
 
     <ItemGroup>
-      <PackageReference Include="CommandDotNet" Version="7.0.3" />
+      <PackageReference Include="CommandDotNet" Version="7.0.4" />
       <PackageReference Include="CommandDotNet.Spectre" Version="3.0.2" />
     </ItemGroup>
 

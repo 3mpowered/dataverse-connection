@@ -12,9 +12,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="CommandDotNet" Version="7.0.3" />
+      <PackageReference Include="CommandDotNet" Version="7.0.4" />
       <PackageReference Include="CommandDotNet.DataAnnotations" Version="3.0.2" />
-      <PackageReference Include="CommandDotNet.IoC.MicrosoftDependencyInjection" Version="5.0.1" />
+      <PackageReference Include="CommandDotNet.IoC.MicrosoftDependencyInjection" Version="6.0.0" />
       <PackageReference Include="CommandDotNet.NameCasing" Version="4.0.2" />
       <PackageReference Include="CommandDotNet.Spectre" Version="3.0.2" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />

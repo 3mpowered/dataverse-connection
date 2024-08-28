@@ -7,8 +7,6 @@
       <PackageReference Include="CommandDotNet.Spectre.Testing" Version="3.0.1" />
       <PackageReference Include="CommandDotNet.TestTools" Version="6.0.3" />
       <PackageReference Update="FluentAssertions" Version="6.12.0" />
-      <PackageReference Update="Microsoft.NET.Test.Sdk" Version="17.11.0" />
-      <PackageReference Update="xunit" Version="2.9.0" />
     </ItemGroup>
 
 

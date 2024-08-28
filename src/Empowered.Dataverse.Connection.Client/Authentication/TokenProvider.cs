@@ -11,13 +11,13 @@ using Microsoft.Extensions.Options;
 
 namespace Empowered.Dataverse.Connection.Client.Authentication;
 
-public class TokenProvider : ITokenProvider
+public class TokenProvider(
+    DataverseClientOptions options,
+    IMemoryCache cache,
+    ICredentialProvider credentialProvider,
+    ILogger<TokenProvider> logger)
+    : ITokenProvider
 {
-    private readonly IMemoryCache _cache;
-    private readonly ICredentialProvider _credentialProvider;
-    private readonly ILogger<TokenProvider> _logger;
-    private readonly DataverseClientOptions _clientOptions;
-
     public static readonly TimeSpan CacheTreshold = TimeSpan.FromMinutes(5);
 
     public TokenProvider(
@@ -28,35 +28,27 @@ public class TokenProvider : ITokenProvider
     {
     }
 
-    public TokenProvider(DataverseClientOptions options, IMemoryCache cache, ICredentialProvider credentialProvider, ILogger<TokenProvider> logger)
-    {
-        _cache = cache;
-        _credentialProvider = credentialProvider;
-        _logger = logger;
-        _clientOptions = options;
-    }
-
     public async Task<string> GetToken(string environmentUri)
     {
         var instanceUrl = new Uri(environmentUri);
         var scope = $"{instanceUrl.Scheme}://{instanceUrl.Authority}/.default";
-        _logger.LogTrace("Retrieving token for environment {InstanceUrl} with scope {Scope}", environmentUri, scope);
+        logger.LogTrace("Retrieving token for environment {InstanceUrl} with scope {Scope}", environmentUri, scope);
 
-        object key = $"{_clientOptions.Type}-{scope}";
-        if (_cache.TryGetValue<AccessToken>(key, out var token))
+        object key = $"{options.Type}-{scope}";
+        if (cache.TryGetValue<AccessToken>(key, out var token))
         {
-            _logger.LogTrace("Getting cached token expiring {ExpirationDate}", token.ExpiresOn);
+            logger.LogTrace("Getting cached token expiring {ExpirationDate}", token.ExpiresOn);
             return token.Token;
         }
 
-        var credential = _credentialProvider.GetCredential();
-        _logger.LogTrace("Authenticating with credential {CredentialType} for connection type {ConnectionType}", credential.GetType(),
-            _clientOptions.Type);
+        var credential = credentialProvider.GetCredential();
+        logger.LogTrace("Authenticating with credential {CredentialType} for connection type {ConnectionType}", credential.GetType(),
+            options.Type);
 
         token = await credential.GetTokenAsync(new TokenRequestContext(new[] { scope }), new CancellationToken());
         var cacheExpirationDate = token.ExpiresOn - CacheTreshold;
-        _cache.Set(scope, token, cacheExpirationDate);
-        _logger.LogTrace("Caching token with expiration date {ExpirationDate} until {CacheExpiration}", token.ExpiresOn, cacheExpirationDate);
+        cache.Set(key, token, cacheExpirationDate);
+        logger.LogTrace("Caching token with expiration date {ExpirationDate} until {CacheExpiration}", token.ExpiresOn, cacheExpirationDate);
 
         return token.Token;
     }
